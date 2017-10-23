@@ -1,6 +1,6 @@
 # runtime: go
 # env: flex
-service: boss
+service: ''
 
 runtime: go
 api_version: go1

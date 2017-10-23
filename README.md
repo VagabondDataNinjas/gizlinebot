@@ -33,5 +33,5 @@ Install [ngrok](https://ngrok.com/download)
     - Run `dev_appserver.py local.yaml --port 8888`
 
 ## Deploy the line bot on app engine
-1. Config SQL parameters in cloud.yaml if needed
+1. Config SQL parameters in cloud.yaml **(Please ask Boss for Google SQL parameters)**
 2. Run `gcloud app deploy cloud.yaml --version YOUR-VERSION`
