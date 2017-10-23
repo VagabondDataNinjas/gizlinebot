@@ -13,4 +13,6 @@ type Storage interface {
 	UserAddAnswer(domain.Answer) error
 	// cleanup any connection / file descriptors to the storage
 	Close() error
+	//Added by Boss
+	GetUserRegisteredStatus(userId string) (bool, error)
 }

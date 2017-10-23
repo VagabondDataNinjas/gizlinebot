@@ -19,3 +19,4 @@ ngrok
 .gizlinebot.toml
 myapp/*-app.yaml
 myapp/key.json
+myapp/test.go

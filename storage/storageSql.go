@@ -129,3 +129,17 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 
 	return nil
 }
+
+func (s *Sql) GetUserRegisteredStatus(userId string) (bool, error) {
+	var registeredStatus uint
+	err := s.Db.QueryRow(`SELECT registered FROM user_profiles
+		WHERE userId = ?`, userId).Scan(&registeredStatus)
+	if err != nil {
+		return false, err
+	}
+
+	if registeredStatus == 0 {
+		return false, nil
+	}
+	return true, nil
+}
