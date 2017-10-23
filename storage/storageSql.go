@@ -2,10 +2,11 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
-	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/go-sql-driver/mysql"
+	"github.com/smeeklai/gizlinebot/domain"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,6 +21,17 @@ func NewSql(conDsn string) (s *Sql, err error) {
 		return s, err
 	}
 
+	return &Sql{
+		Db: db,
+	}, nil
+}
+
+func NewGoogleSql(user, password, connectionName, dbName string) (s *Sql, err error) {
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@cloudsql(%s)/%s", user, password, connectionName, dbName))
+	if err != nil {
+		return s, err
+	}
+	fmt.Println("Connected to Google Sql database")
 	return &Sql{
 		Db: db,
 	}, nil

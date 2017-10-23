@@ -6,9 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
-	"github.com/VagabondDataNinjas/gizlinebot/survey"
+	// "github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/smeeklai/gizlinebot/storage"
+	"github.com/smeeklai/gizlinebot/survey"
 )
 
 type LineServer struct {
@@ -84,6 +85,7 @@ func (ls *LineServer) Serve() error {
 			}
 
 			if event.Type == linebot.EventTypeMessage {
+				// fmt.Printf("\ntype: %q \ntoken: %q \nstring: %q", string(event.Type), event.ReplyToken, string(eventString))
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
 					err = ls.Survey.RecordAnswer(userId, message.Text)

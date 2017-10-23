@@ -1,10 +1,9 @@
 CREATE database if not exists gizsurvey;
 USE gizsurvey;
 
-
-CREATE USER if not exists 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA';
-GRANT ALL PRIVILEGES ON gizsurvey.* TO 'gizlinebot'@'127.0.0.1';
-FLUSH PRIVILEGES;
+-- CREATE USER if not exists 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA';
+-- GRANT ALL PRIVILEGES ON gizsurvey.* TO 'gizlinebot'@'127.0.0.1';
+-- FLUSH PRIVILEGES;
 
 -- Stores all the messages sent by a user
 -- useful in case we need to re-parse / validate messages

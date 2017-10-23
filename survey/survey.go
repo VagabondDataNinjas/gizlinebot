@@ -1,8 +1,8 @@
 package survey
 
 import (
-	"github.com/VagabondDataNinjas/gizlinebot/domain"
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/smeeklai/gizlinebot/domain"
+	"github.com/smeeklai/gizlinebot/storage"
 )
 
 type Survey struct {
