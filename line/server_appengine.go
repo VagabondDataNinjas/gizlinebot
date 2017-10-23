@@ -10,10 +10,10 @@ import (
 	aelog "google.golang.org/appengine/log"
 	"google.golang.org/appengine/urlfetch"
 
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/VagabondDataNinjas/gizlinebot/survey"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/line/line-bot-sdk-go/linebot/httphandler"
-	"github.com/smeeklai/gizlinebot/storage"
-	"github.com/smeeklai/gizlinebot/survey"
 )
 
 func ServeAppEngine(storage storage.Storage, surv *survey.Survey, secret, token string) error {

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/smeeklai/gizlinebot/domain"
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
 )
 
 type Storage interface {

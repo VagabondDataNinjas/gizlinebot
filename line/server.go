@@ -6,10 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	// "github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/VagabondDataNinjas/gizlinebot/survey"
 	"github.com/line/line-bot-sdk-go/linebot"
-	"github.com/smeeklai/gizlinebot/storage"
-	"github.com/smeeklai/gizlinebot/survey"
 )
 
 type LineServer struct {

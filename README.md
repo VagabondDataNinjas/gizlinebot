@@ -10,8 +10,8 @@
 ### Create your new yaml file
 ```
 cd myapp/
-cp .local-example.yaml local.yaml
-cp .cloud-example.yaml cloud.yaml
+cp .local-example.yaml local-app.yaml
+cp .cloud-example.yaml cloud-app.yaml
 ```
 ### Config yaml files
 - Specify your `service` name in both yaml files

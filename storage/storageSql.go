@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/go-sql-driver/mysql"
-	"github.com/smeeklai/gizlinebot/domain"
 
 	_ "github.com/go-sql-driver/mysql"
 )
