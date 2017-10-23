@@ -3,9 +3,10 @@ package cmd
 import (
 	"errors"
 
-	"github.com/VagabondDataNinjas/gizlinebot/line"
-
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/smeeklai/gizlinebot/domain"
+	"github.com/smeeklai/gizlinebot/line"
+	"github.com/smeeklai/gizlinebot/storage"
+	"github.com/smeeklai/gizlinebot/survey"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -22,8 +23,28 @@ var lineBotCmd = &cobra.Command{
 		s, err := storage.NewSql(cfgStr("SQL_USER") + ":" + cfgStr("SQL_PASS") + "@(" + cfgStr("SQL_HOST") + ":" + cfgStr("SQL_PORT") + ")/" + cfgStr("SQL_DB"))
 		checkErr(err)
 
+		// @TODO move outside code
+		qs := domain.NewQuestions()
+		questions := [][]string{
+			{"Q1", `Thank you for following us!
+If you'd like to complete the survey online please go to https://google.com
+Otherwise you can complete the form here.
+You can start by replying back with your location (area or island name):`},
+			{"Q2", "How much do you pay for diesel in your area?"},
+			{"Q3", "What is your occupation?"},
+			{"Q4", "What is your line id?"},
+			{"Q5", "What did you do today?"},
+			{"Q6", "Thank you for all your help! We might ask you more questions in the future"},
+		}
+
+		for _, question := range questions {
+			err = qs.Add(question[0], question[1])
+			checkErr(err)
+		}
+		surv := survey.NewSurvey(s, qs)
+
 		port := cfgStr("SERVER_PORT")
-		server, err := line.NewLineServer(port, s, viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
+		server, err := line.NewLineServer(port, surv, s, viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
 		checkErr(err)
 
 		err = server.Serve()

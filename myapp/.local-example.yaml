@@ -1,0 +1,20 @@
+# runtime: go
+# env: flex
+service: boss
+
+runtime: go
+api_version: go1
+
+handlers:
+- url: /.*
+  script: _go_app
+
+env_variables:
+  CHANNEL_SECRET: ''
+  CHANNEL_TOKEN: ''
+  LOCAL_DB: True
+  GIZLB_SQL_USER: gizlinebot
+  GIZLB_SQL_PASS: 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA'
+  GIZLB_SQL_HOST: '127.0.0.1'
+  GIZLB_SQL_PORT: '3306'
+  GIZLB_SQL_DB: gizsurvey
