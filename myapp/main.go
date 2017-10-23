@@ -6,10 +6,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/smeeklai/gizlinebot/domain"
-	"github.com/smeeklai/gizlinebot/line"
-	"github.com/smeeklai/gizlinebot/storage"
-	"github.com/smeeklai/gizlinebot/survey"
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
+	"github.com/VagabondDataNinjas/gizlinebot/line"
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/VagabondDataNinjas/gizlinebot/survey"
 )
 
 func init() {
