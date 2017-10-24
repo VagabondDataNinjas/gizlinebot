@@ -1,6 +1,7 @@
 package domain
 
 type Question struct {
-	Id   string
-	Text string
+	Id     string
+	Text   string
+	Weight int
 }

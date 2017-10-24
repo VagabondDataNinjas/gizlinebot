@@ -107,8 +107,9 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 	var (
 		id           string
 		questionText string
+		weight       int
 	)
-	rows, err := s.Db.Query(`SELECT id, question FROM questions ORDER BY weight ASC`)
+	rows, err := s.Db.Query(`SELECT id, question, weight FROM questions ORDER BY weight ASC`)
 	if err != nil {
 		return qs, err
 	}
@@ -116,11 +117,11 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 
 	qs = domain.NewQuestions()
 	for rows.Next() {
-		err := rows.Scan(&id, &questionText)
+		err := rows.Scan(&id, &questionText, &weight)
 		if err != nil {
 			return qs, err
 		}
-		err = qs.Add(id, questionText)
+		err = qs.Add(id, questionText, weight)
 		if err != nil {
 			return qs, err
 		}

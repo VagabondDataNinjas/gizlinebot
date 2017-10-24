@@ -28,7 +28,7 @@ cp .gizlinebot.example.toml ~/.gizlinebot.toml
 
 # start an ngrok tunnel
 # the port you give to ngrok should be the same as
-# GIZLB_SERVER_PORT value (default port 8888)
+# PORT value (default port 8888)
 ngrok http 127.0.0.1:8888
 
 # update the line Webhook URL to the ngrok host + "/linewebhook"

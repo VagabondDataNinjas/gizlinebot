@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -75,5 +76,25 @@ func checkErr(err error) {
 	if err != nil {
 		fmt.Printf("\nError: %s\n", err)
 		os.Exit(1)
+	}
+}
+
+func cfgStr(key string) string {
+	if key == "PORT" {
+		return viper.GetString(key)
+	}
+	return viper.GetString("GIZLB_" + key)
+}
+
+func validateEnv() {
+	reqEnv := []string{"LINE_SECRET", "LINE_TOKEN", "SQL_DB", "SQL_USER", "SQL_PASS", "SQL_HOST", "SQL_PORT"}
+	for _, v := range reqEnv {
+		if val := cfgStr(v); val == "" {
+			checkErr(errors.New("GIZLB_" + v + " is not defined in config file or variable"))
+		}
+	}
+
+	if val := viper.GetString("PORT"); val == "" {
+		checkErr(errors.New("PORT is not defined in config file or env variable"))
 	}
 }

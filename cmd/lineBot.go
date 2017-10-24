@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"errors"
-
 	"github.com/VagabondDataNinjas/gizlinebot/line"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
@@ -26,26 +24,13 @@ var lineBotCmd = &cobra.Command{
 		checkErr(err)
 		surv := survey.NewSurvey(s, qs)
 
-		port := cfgStr("SERVER_PORT")
+		port := cfgStr("PORT")
 		server, err := line.NewLineServer(port, surv, s, viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
 		checkErr(err)
 
 		err = server.Serve()
 		checkErr(err)
 	},
-}
-
-func cfgStr(key string) string {
-	return viper.GetString("GIZLB_" + key)
-}
-
-func validateEnv() {
-	reqEnv := []string{"LINE_SECRET", "LINE_TOKEN", "SERVER_PORT", "SQL_DB", "SQL_USER", "SQL_PASS", "SQL_HOST", "SQL_PORT"}
-	for _, v := range reqEnv {
-		if val := cfgStr(v); val == "" {
-			checkErr(errors.New("GIZLB_" + v + " is not defined in config file"))
-		}
-	}
 }
 
 func init() {
