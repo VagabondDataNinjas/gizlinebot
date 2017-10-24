@@ -1,7 +1,7 @@
-CREATE database if not exists gizsurvey;
+CREATE database IF NOT EXISTS gizsurvey;
 USE gizsurvey;
 
--- CREATE USER if not exists 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA';
+-- CREATE USER IF NOT EXISTS 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA';
 -- GRANT ALL PRIVILEGES ON gizsurvey.* TO 'gizlinebot'@'127.0.0.1';
 -- FLUSH PRIVILEGES;
 
@@ -30,6 +30,10 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
   `displayName` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
+  `islandName` varchar(255) NOT NULL DEFAULT '' COMMENT 'User living island name',
+  `job` varchar(255) NOT NULL DEFAULT '' COMMENT 'User job',
+  `registered` TINYINT NOT NULL DEFAULT 0 COMMENT 'User profile provided or not',
+  `surveyDoneCount` INT(11) NOT NULL DEFAULT 0 COMMENT 'Count how many surveys the user has done',
   `timestamp` int(11) NOT NULL COMMENT 'UTC timestamp when this profile was added',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_display_name` (`userId`,`displayName`)

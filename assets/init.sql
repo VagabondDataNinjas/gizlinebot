@@ -31,10 +31,6 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
   `displayName` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
-  `islandName` varchar(255) NOT NULL DEFAULT '' COMMENT 'User living island name',
-  `job` varchar(255) NOT NULL DEFAULT '' COMMENT 'User job',
-  `registered` TINYINT NOT NULL DEFAULT 0 COMMENT 'User profile provided or not',
-  `surveyDoneCount` INT(11) NOT NULL DEFAULT 0 COMMENT 'Count how many surveys the user has done',
   `timestamp` int(11) NOT NULL COMMENT 'UTC timestamp when this profile was added',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_display_name` (`userId`,`displayName`)

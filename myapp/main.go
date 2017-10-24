@@ -57,10 +57,13 @@ func init() {
 	}
 	surv := survey.NewSurvey(s, qs)
 
-	err = line.ServeAppEngine(s, surv, mustGetenv("CHANNEL_SECRET"), mustGetenv("CHANNEL_TOKEN"))
+	server, err := line.NewLineAppEngine(s, surv, mustGetenv("CHANNEL_SECRET"), mustGetenv("CHANNEL_TOKEN"))
 	if err != nil {
 		fmt.Sprintf("\nError: %s\n", err)
 	}
+
+	server.ServeAppEngine()
+
 }
 
 func mustGetenv(k string) string {
