@@ -35,3 +35,19 @@ CREATE TABLE `user_profiles` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_display_name` (`userId`,`displayName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- list of questions for the users
+CREATE TABLE `questions` (
+  `id` varchar(255) NOT NULL DEFAULT '',
+  `question` text NOT NULL,
+  `weight` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `questions` (`id`, `question`, `weight`)
+VALUES
+	('welcome', 'Thank you for following us!\nIf you\'d like to complete the survey online please go to https://google.com\nOtherwise you can complete the form here.\nYou can start by replying back with your location (area or island name)', -10),
+	('price', 'How much do you pay for diesel in your area?', -9),
+	('job', 'What is your occupation?', -8),
+	('lineid', 'What is your line id?', -7),
+	('thank_you', 'Thank you for all your help! We might ask you more questions in the future', -6);

@@ -103,6 +103,37 @@ func (s *Sql) UserGetLastAnswer(uid string) (domain.Answer, error) {
 	}, nil
 }
 
+func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
+	var (
+		id           string
+		questionText string
+	)
+	rows, err := s.Db.Query(`SELECT id, question FROM questions ORDER BY weight ASC`)
+	if err != nil {
+		return qs, err
+	}
+	defer rows.Close()
+
+	qs = domain.NewQuestions()
+	for rows.Next() {
+		err := rows.Scan(&id, &questionText)
+		if err != nil {
+			return qs, err
+		}
+		err = qs.Add(id, questionText)
+		if err != nil {
+			return qs, err
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return qs, err
+	}
+
+	return qs, nil
+}
+
 func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 	stmt, err := s.Db.Prepare("INSERT INTO linebot_answers(userId, questionId, answer, timestamp) VALUES(?, ?, ?, ?)")
 	if err != nil {

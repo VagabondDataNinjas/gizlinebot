@@ -35,7 +35,6 @@ func NewLineServer(port string, surv *survey.Survey, storage storage.Storage, se
 func (ls *LineServer) Serve() error {
 	// Setup HTTP Server for receiving requests from LINE platform
 	http.HandleFunc("/linewebhook", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Printf("\nRequest: %+v\n", req)
 		events, err := ls.Bot.ParseRequest(req)
 		if err != nil {
 			if err == linebot.ErrInvalidSignature {
@@ -45,14 +44,12 @@ func (ls *LineServer) Serve() error {
 			}
 			return
 		}
-		fmt.Printf("\nevents: %+v", events)
 		for _, event := range events {
 			userId := event.Source.UserID
 			eventString, err := json.Marshal(event)
 			if err != nil {
 				log.Printf("[err] Could not marshal event: %+v; err: %s", event, err)
 			} else {
-				log.Printf("\nEvent string: %s\n", eventString)
 				err = ls.Storage.AddRawLineEvent(string(event.Type), string(eventString))
 				if err != nil {
 					log.Printf("[err] Could not store event: %+v; err: %s", event, err)
@@ -97,7 +94,6 @@ func (ls *LineServer) Serve() error {
 						log.Print(err)
 						break
 					}
-					fmt.Printf("\nUser [id: %s] said: %s", userId, message.Text)
 
 					if _, err = ls.Bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
 						log.Print(err)
