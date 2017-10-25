@@ -64,6 +64,27 @@ func (s *Sql) AddUserProfile(userID, displayName string) error {
 	return nil
 }
 
+func (s *Sql) GetUserProfile(userId string) (profile domain.UserProfile, err error) {
+	var (
+		displayName string
+		timestamp   int
+	)
+	err = s.Db.QueryRow(`SELECT displayName, timestamp
+		FROM user_profiles where userId = ?`, userId).Scan(&displayName, &timestamp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return profile, nil
+		}
+		return profile, err
+	}
+
+	return domain.UserProfile{
+		UserId:      userId,
+		DisplayName: displayName,
+		Timestamp:   timestamp,
+	}, nil
+}
+
 func (s *Sql) UserHasAnswers(userId string) (bool, error) {
 	var hasAnswers int
 	err := s.Db.QueryRow(`SELECT count(id) FROM linebot_answers

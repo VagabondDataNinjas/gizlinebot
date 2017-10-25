@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -77,6 +78,12 @@ func checkErr(err error) {
 		fmt.Printf("\nError: %s\n", err)
 		os.Exit(1)
 	}
+}
+
+func cfgPort() int {
+	port, err := strconv.Atoi(cfgStr("PORT"))
+	checkErr(err)
+	return port
 }
 
 func cfgStr(key string) string {
