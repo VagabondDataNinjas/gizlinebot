@@ -36,4 +36,8 @@ eg: https://d2631531.ngrok.io/linewebhook
 
 # start the bot
 go run main.go lineBot
+
+# in a different terminal you can also start the
+# web API
+go run main.go webApi
 ```
