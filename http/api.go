@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/line/line-bot-sdk-go/linebot"
+
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 
 	"github.com/labstack/echo"
@@ -12,13 +14,15 @@ import (
 
 type Api struct {
 	Storage storage.Storage
+	LineBot *linebot.Client
 	Port    int
 }
 
-func NewApi(port int, s storage.Storage) *Api {
+func NewApi(port int, s storage.Storage, lb *linebot.Client) *Api {
 	return &Api{
 		Storage: s,
 		Port:    port,
+		LineBot: lb,
 	}
 }
 
@@ -38,6 +42,9 @@ func (a *Api) Serve() error {
 	})
 
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
+
+	// @TODO add authentication
+	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", a.Port)))
 	return nil

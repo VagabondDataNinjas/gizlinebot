@@ -3,7 +3,9 @@ package cmd
 import (
 	"github.com/VagabondDataNinjas/gizlinebot/http"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // webApi
@@ -18,8 +20,11 @@ var webApiCmd = &cobra.Command{
 		s, err := storage.NewSql(cfgStr("SQL_USER") + ":" + cfgStr("SQL_PASS") + "@(" + cfgStr("SQL_HOST") + ":" + cfgStr("SQL_PORT") + ")/" + cfgStr("SQL_DB"))
 		checkErr(err)
 
+		bot, err := linebot.New(viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
+		checkErr(err)
+
 		// cfgStr("PORT")
-		api := http.NewApi(cfgPort(), s)
+		api := http.NewApi(cfgPort(), s, bot)
 		checkErr(api.Serve())
 	},
 }

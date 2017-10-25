@@ -4,7 +4,8 @@
 	"description": "",
 	"order": [
 		"242f8a06-fc88-d868-b229-ff277dc52ed8",
-		"d886d2cf-6a83-d049-92ab-00c7e7dcc8be"
+		"d886d2cf-6a83-d049-92ab-00c7e7dcc8be",
+		"839964ee-9678-9354-6f7d-3e3ed150e17f"
 	],
 	"folders": [],
 	"timestamp": 1508953296270,
@@ -30,6 +31,25 @@
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
 			"rawModeData": "{\n    \"user_id\": \"Uf8a8cf68247060757bd2e5b2a4954dd2\",\n    \"answers\": [\n        {\n            \"question_id\": \"location\",\n            \"answer\": \"Kho tao\"\n        },\n        {\n            \"question_id\": \"price\",\n            \"answer\": \"32thb/l khrap\"\n        }\n    ]\n}\n"
+		},
+		{
+			"id": "839964ee-9678-9354-6f7d-3e3ed150e17f",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:8888/api/admin/send-msg",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1508958402216,
+			"name": "/api/admin/send-msg",
+			"description": "",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"responses": [],
+			"rawModeData": "{\n    \"user_ids\": [\"Uf8a8cf68247060757bd2e5b2a4954dd2\"],\n    \"message\": \"Hello!!!\"\n}"
 		},
 		{
 			"id": "d886d2cf-6a83-d049-92ab-00c7e7dcc8be",
