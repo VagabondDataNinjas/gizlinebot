@@ -87,7 +87,7 @@ func (s *Sql) GetUserProfile(userId string) (profile domain.UserProfile, err err
 
 func (s *Sql) UserHasAnswers(userId string) (bool, error) {
 	var hasAnswers int
-	err := s.Db.QueryRow(`SELECT count(id) FROM linebot_answers
+	err := s.Db.QueryRow(`SELECT count(id) FROM answers
 		WHERE userId = ?`, userId).Scan(&hasAnswers)
 	if err != nil {
 		return false, err
@@ -105,7 +105,7 @@ func (s *Sql) UserGetLastAnswer(uid string) (domain.Answer, error) {
 	var questionId string
 	var answer string
 	var timestamp int64
-	err := s.Db.QueryRow(`SELECT id, userId, questionId, answer, timestamp FROM linebot_answers
+	err := s.Db.QueryRow(`SELECT id, userId, questionId, answer, timestamp FROM answers
 		WHERE userId = ? AND answer != ""
 		ORDER BY timestamp DESC
 		LIMIT 0,1
@@ -157,12 +157,27 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 }
 
 func (s *Sql) UserAddAnswer(answer domain.Answer) error {
-	stmt, err := s.Db.Prepare("INSERT INTO linebot_answers(userId, questionId, answer, timestamp) VALUES(?, ?, ?, ?)")
+	stmt, err := s.Db.Prepare("INSERT INTO answers(userId, questionId, answer, timestamp) VALUES(?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(answer.UserId, answer.QuestionId, answer.Answer, int32(time.Now().UTC().Unix()))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Sql) UserAddGpsAnswer(answer domain.AnswerGps) error {
+	stmt, err := s.Db.Prepare("INSERT INTO answers_gps(userId, lat, lon, timestamp) VALUES(?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(answer.UserId, answer.Lat, answer.Lon, int32(time.Now().UTC().Unix()))
 
 	if err != nil {
 		return err

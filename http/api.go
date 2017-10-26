@@ -45,6 +45,7 @@ func (a *Api) Serve() error {
 	})
 
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
+	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 
 	// @TODO add authentication
 	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))

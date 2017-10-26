@@ -12,6 +12,7 @@ type Storage interface {
 	UserHasAnswers(userId string) (bool, error)
 	UserGetLastAnswer(userId string) (domain.Answer, error)
 	UserAddAnswer(domain.Answer) error
+	UserAddGpsAnswer(domain.AnswerGps) error
 	GetQuestions() (*domain.Questions, error)
 	// cleanup any connection / file descriptors to the storage
 	Close() error

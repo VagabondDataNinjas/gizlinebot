@@ -5,7 +5,8 @@
 	"order": [
 		"242f8a06-fc88-d868-b229-ff277dc52ed8",
 		"d886d2cf-6a83-d049-92ab-00c7e7dcc8be",
-		"839964ee-9678-9354-6f7d-3e3ed150e17f"
+		"839964ee-9678-9354-6f7d-3e3ed150e17f",
+		"add4b46b-f7cc-734a-09f8-3848e1ae9c3f"
 	],
 	"folders": [],
 	"timestamp": 1508953296270,
@@ -50,6 +51,25 @@
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
 			"rawModeData": "{\n    \"user_ids\": [\"Uf8a8cf68247060757bd2e5b2a4954dd2\"],\n    \"messages\": [\n        \"Hello there\",\n        \"Please complete this survey: http://surveymonkey.com/?uid={{.UserId}}!!!\"\n    ]\n}"
+		},
+		{
+			"id": "add4b46b-f7cc-734a-09f8-3848e1ae9c3f",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:8888/api/webform/answer-gps",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509031348420,
+			"name": "/api/webform/answer-gps",
+			"description": "",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"responses": [],
+			"rawModeData": "{\n    \"user_id\": \"Uf8a8cf68247060757bd2e5b2a4954dd2\",\n    \"location\": {\n        \"lat\": 14.744868,\n        \"lon\": 98.832069\n    }\n}\n"
 		},
 		{
 			"id": "d886d2cf-6a83-d049-92ab-00c7e7dcc8be",

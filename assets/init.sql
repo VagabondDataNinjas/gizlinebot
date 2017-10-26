@@ -17,11 +17,20 @@ CREATE TABLE `linebot_raw_events` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Stores all answers sent by a user
-CREATE TABLE `linebot_answers` (
+CREATE TABLE `answers` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Line userId',
   `questionId` varchar(10) NOT NULL DEFAULT '' COMMENT 'The question Id',
   `answer` text NOT NULL COMMENT 'User entered answer',
+  `timestamp` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `answers_gps` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Line userId',
+  `lat` decimal(10,8) NOT NULL COMMENT 'Latitude',
+  `lon` decimal(11,8) NOT NULL COMMENT 'Longitude',
   `timestamp` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
