@@ -1,9 +1,16 @@
 package survey
 
 import (
+	"bytes"
+	"html/template"
+
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 )
+
+type QuestionTemplateVars struct {
+	UserId string
+}
 
 type Survey struct {
 	Storage   storage.Storage
@@ -18,10 +25,34 @@ func NewSurvey(storage storage.Storage, questions *domain.Questions) (survey *Su
 }
 
 func (s *Survey) GetNextQuestion(userId string) (question *domain.Question, err error) {
+	q, err := s.getNextQuestionRaw(userId)
+	if err != nil {
+		return question, err
+	}
+	tmpl, err := template.New("lineQuestion").Parse(q.Text)
+	if err != nil {
+		return question, err
+	}
+	buf := new(bytes.Buffer)
+
+	vars := QuestionTemplateVars{
+		UserId: userId,
+	}
+	err = tmpl.Execute(buf, vars)
+	if err != nil {
+		return question, err
+	}
+
+	q.Text = buf.String()
+	return q, nil
+}
+
+func (s *Survey) getNextQuestionRaw(userId string) (question *domain.Question, err error) {
 	has, err := s.Storage.UserHasAnswers(userId)
 	if err != nil {
 		return question, err
 	}
+
 	if !has {
 		return s.Questions.At(0)
 	}
