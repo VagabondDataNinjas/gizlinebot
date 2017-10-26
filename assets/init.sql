@@ -35,15 +35,16 @@ CREATE TABLE `answers_gps` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Stores user profiles. Useful in case we need to contact the users manually
+-- Stores user profiles
 CREATE TABLE `user_profiles` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
-  `displayName` varchar(255) NOT NULL DEFAULT '' COMMENT 'provided by Line during the follow event',
+  `displayName` blob NOT NULL COMMENT 'Line field that allows users to set emojy''s and other non UTF-8 content',
   `timestamp` int(11) NOT NULL COMMENT 'UTC timestamp when this profile was added',
+  `bot_survey_inited` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'If set to 0: the line bot has not yet sent the initial question to the user. If non-0 linebot already sent the first question of the survey.',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id_display_name` (`userId`,`displayName`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `user_id` (`userId`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- list of questions for the users
 CREATE TABLE `questions` (
@@ -56,10 +57,22 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('welcome', 'Thank you for following us!\nYou can find out more about us: https://www.youtube.com/watch?v=Vec5DML9yp4\nPlease fill in the following survey in order to help our cause https://survey.delta9.link?uid={{.UserId}}', -10, 'both'),
 	('job', 'What is your occupation?', -9, 'both'),
 	('gps', 'What is your location', -8, 'web'),
 	('island', 'What is the name of your island where you live?', -8, 'both'),
 	('price', 'How much do you pay for diesel in your area?', -5, 'both'),
 	('lineid', 'What is your line id?', -1, 'both'),
 	('thank_you', 'Thank you for all your help! We might ask you more questions in the future', 0, 'both');
+
+CREATE TABLE `welcome_msgs` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `msg` text NOT NULL,
+  `weight` int(11) NOT NULL,
+  `channel` varchar(10) NOT NULL DEFAULT '' COMMENT '"both", "web" or "line"',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
+VALUES
+	(1, 'Thank you for following us!\nYou can find out more about us: https://www.youtube.com/watch?v=Vec5DML9yp4', -4, 'line'),
+	(2, 'Please fill in the following survey in order to help our cause https://survey.delta9.link?uid={{.UserId}}', -1, 'line');

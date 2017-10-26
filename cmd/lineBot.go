@@ -4,6 +4,7 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/line"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
+	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,15 +18,24 @@ var lineBotCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		validateEnv()
 
-		s, err := storage.NewSql(cfgStr("SQL_USER") + ":" + cfgStr("SQL_PASS") + "@(" + cfgStr("SQL_HOST") + ":" + cfgStr("SQL_PORT") + ")/" + cfgStr("SQL_DB"))
+		store, err := storage.NewSql(cfgStr("SQL_USER") + ":" + cfgStr("SQL_PASS") + "@(" + cfgStr("SQL_HOST") + ":" + cfgStr("SQL_PORT") + ")/" + cfgStr("SQL_DB"))
 		checkErr(err)
 
-		qs, err := s.GetQuestions()
+		qs, err := store.GetQuestions()
 		checkErr(err)
-		surv := survey.NewSurvey(s, qs)
+		surv := survey.NewSurvey(store, qs)
+
+		bot, err := linebot.New(viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
+		checkErr(err)
+
+		errc := make(chan error)
+		initiator := line.NewInitiator(surv, store, bot)
+		go func() {
+			initiator.Monitor(120, errc)
+		}()
 
 		port := cfgStr("PORT")
-		server, err := line.NewLineServer(port, surv, s, viper.GetString("GIZLB_LINE_SECRET"), viper.GetString("GIZLB_LINE_TOKEN"))
+		server, err := line.NewLineServer(port, surv, store, bot)
 		checkErr(err)
 
 		err = server.Serve()

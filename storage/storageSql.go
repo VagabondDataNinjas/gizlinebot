@@ -1,7 +1,9 @@
 package storage
 
 import (
+	"bytes"
 	"database/sql"
+	"html/template"
 	"time"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
@@ -62,6 +64,52 @@ func (s *Sql) AddUserProfile(userID, displayName string) error {
 	}
 
 	return nil
+}
+
+func (s *Sql) MarkProfileBotSurveyInited(userId string) error {
+	stmt, err := s.Db.Prepare("UPDATE user_profiles SET bot_survey_inited = 1 WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(userId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Sql) GetUsersWithoutAnswers(delaySecs int64) (userIds []string, err error) {
+	var (
+		userId string
+	)
+
+	tsCompare := time.Now().UTC().Unix() - delaySecs
+	rows, err := s.Db.Query(`SELECT p.userId FROM user_profiles p
+		LEFT JOIN answers a ON a.userId = p.userId
+		WHERE a.userId IS NULL AND p.bot_survey_inited = 0 AND p.timestamp < ?`, tsCompare)
+	if err != nil {
+		return userIds, err
+	}
+	defer rows.Close()
+
+	userIds = make([]string, 0)
+	for rows.Next() {
+		err := rows.Scan(&userId)
+		if err != nil {
+			return userIds, err
+		}
+		userIds = append(userIds, userId)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return userIds, err
+	}
+
+	return userIds, nil
 }
 
 func (s *Sql) GetUserProfile(userId string) (profile domain.UserProfile, err error) {
@@ -154,6 +202,54 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 	}
 
 	return qs, nil
+}
+
+type WelcomeMsgTplVars struct {
+	UserId string
+}
+
+func (s *Sql) GetWelcomeMsgs(tplVars *WelcomeMsgTplVars) (msgs []string, err error) {
+	var (
+		msgRaw string
+	)
+	rows, err := s.Db.Query(`SELECT msg FROM welcome_msgs WHERE channel IN ("line", "both") ORDER BY weight ASC`)
+	if err != nil {
+		return msgs, err
+	}
+	defer rows.Close()
+
+	msgs = make([]string, 0)
+	for rows.Next() {
+		err := rows.Scan(&msgRaw)
+		if err != nil {
+			return msgs, err
+		}
+		msg, err := s.applyWelcomeTpl(msgRaw, tplVars)
+		if err != nil {
+			return msgs, err
+		}
+		msgs = append(msgs, msg)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return msgs, err
+	}
+
+	return msgs, nil
+}
+
+func (s *Sql) applyWelcomeTpl(msg string, tplVars *WelcomeMsgTplVars) (string, error) {
+	tmpl, err := template.New("welcomeMsg").Parse(msg)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, tplVars)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 func (s *Sql) UserAddAnswer(answer domain.Answer) error {

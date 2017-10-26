@@ -18,12 +18,7 @@ type LineServer struct {
 	Survey  *survey.Survey
 }
 
-func NewLineServer(port string, surv *survey.Survey, storage storage.Storage, secret, token string) (server *LineServer, err error) {
-	bot, err := linebot.New(secret, token)
-	if err != nil {
-		return server, err
-	}
-
+func NewLineServer(port string, surv *survey.Survey, storage storage.Storage, bot *linebot.Client) (server *LineServer, err error) {
 	return &LineServer{
 		Port:    port,
 		Bot:     bot,
@@ -69,14 +64,37 @@ func (ls *LineServer) Serve() error {
 					continue
 				}
 
-				question, err := ls.Survey.GetNextQuestion(userId)
+				hasAnswers, err := ls.Storage.UserHasAnswers(userId)
 				if err != nil {
 					log.Print(err)
 					continue
 				}
-				if _, err = ls.Bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
-					log.Print(err)
-					continue
+
+				if hasAnswers {
+					question, err := ls.Survey.GetNextQuestion(userId)
+					if err != nil {
+						log.Print(err)
+						continue
+					}
+					if _, err = ls.Bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
+						log.Print(err)
+						continue
+					}
+				} else {
+					welcomeTplVars := &storage.WelcomeMsgTplVars{
+						UserId: userId,
+					}
+					welcomeMsgs, err := ls.Storage.GetWelcomeMsgs(welcomeTplVars)
+					if err != nil {
+						log.Print(err)
+						continue
+					}
+					for _, welcomeMsg := range welcomeMsgs {
+						if _, err = ls.Bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
+							log.Print(err)
+							continue
+						}
+					}
 				}
 			}
 
