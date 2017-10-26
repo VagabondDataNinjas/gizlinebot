@@ -31,6 +31,9 @@ func (a *Api) Serve() error {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	// CORS default
+	// Allows requests from any origin wth GET, HEAD, PUT, POST or DELETE method.
+	e.Use(middleware.CORS())
 
 	qs, err := a.Storage.GetQuestions()
 	if err != nil {
