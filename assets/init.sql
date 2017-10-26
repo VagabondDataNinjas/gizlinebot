@@ -41,13 +41,16 @@ CREATE TABLE `questions` (
   `id` varchar(255) NOT NULL DEFAULT '',
   `question` text NOT NULL,
   `weight` int(11) NOT NULL,
+  `channel` varchar(10) NOT NULL DEFAULT '' COMMENT '"both", "web" or "line"',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `questions` (`id`, `question`, `weight`)
+INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('welcome', 'Thank you for following us!\nIf you\'d like to complete the survey online please go to https://google.com\nOtherwise you can complete the form here.\nYou can start by replying back with your location (area or island name)', -10),
-	('price', 'How much do you pay for diesel in your area?', -9),
-	('job', 'What is your occupation?', -8),
-	('lineid', 'What is your line id?', -7),
-	('thank_you', 'Thank you for all your help! We might ask you more questions in the future', -6);
+	('welcome', 'Thank you for following us!\nYou can find out more about us: https://www.youtube.com/watch?v=Vec5DML9yp4\nPlease fill in the following survey in order to help our cause https://survey.delta9.link?uid={{.UserId}}', -10, 'both'),
+	('job', 'What is your occupation?', -9, 'both'),
+	('gps', 'What is your location', -8, 'web'),
+	('island', 'What is the name of your island where you live?', -8, 'both'),
+	('price', 'How much do you pay for diesel in your area?', -5, 'both'),
+	('lineid', 'What is your line id?', -1, 'both'),
+	('thank_you', 'Thank you for all your help! We might ask you more questions in the future', 0, 'both');
