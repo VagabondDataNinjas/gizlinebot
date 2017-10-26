@@ -1,9 +1,11 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
+	"text/template"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -12,8 +14,12 @@ import (
 )
 
 type SendLineMsgRequest struct {
-	UserIds []string `json:"user_ids"`
-	Message string   `json:"message"`
+	UserIds  []string `json:"user_ids"`
+	Messages []string `json:"messages"`
+}
+
+type MsgVars struct {
+	UserId string
 }
 
 func SendLineMsgHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(c echo.Context) error {
@@ -25,16 +31,33 @@ func SendLineMsgHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(
 		}
 
 		// @TODO validate UserIds exist
+		// @TODO validate that the message templates compile
 		// @TODO segment users list in max 150 users @see line documentation
 		// @TODO use multicast
 		warnings := []string{}
-		lineMsg := linebot.NewTextMessage(payload.Message)
 		for _, userId := range payload.UserIds {
-			if _, err := lineBot.PushMessage(userId, lineMsg).Do(); err != nil {
-				warn := fmt.Sprintf("Got error when seding msg to %s: %s", userId, err)
-				log.Print(warn)
-				warnings = append(warnings, warn)
-				continue
+			for _, message := range payload.Messages {
+				vars := MsgVars{
+					UserId: userId,
+				}
+				tmpl, err := template.New("lineMsg").Parse(message)
+				if err != nil {
+					// @TODO log
+					return err
+				}
+				buf := new(bytes.Buffer)
+				err = tmpl.Execute(buf, vars)
+				if err != nil {
+					return err
+				}
+
+				lineMsg := linebot.NewTextMessage(buf.String())
+				if _, err := lineBot.PushMessage(userId, lineMsg).Do(); err != nil {
+					warn := fmt.Sprintf("Got error when seding msg to %s: %s", userId, err)
+					log.Print(warn)
+					warnings = append(warnings, warn)
+					continue
+				}
 			}
 		}
 

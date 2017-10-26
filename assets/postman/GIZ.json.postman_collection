@@ -44,12 +44,12 @@
 			"tests": null,
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1508958402216,
+			"time": 1508990977134,
 			"name": "/api/admin/send-msg",
 			"description": "",
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
-			"rawModeData": "{\n    \"user_ids\": [\"Uf8a8cf68247060757bd2e5b2a4954dd2\"],\n    \"message\": \"Hello!!!\"\n}"
+			"rawModeData": "{\n    \"user_ids\": [\"Uf8a8cf68247060757bd2e5b2a4954dd2\"],\n    \"messages\": [\n        \"Hello there\",\n        \"Please complete this survey: http://surveymonkey.com/?uid={{.UserId}}!!!\"\n    ]\n}"
 		},
 		{
 			"id": "d886d2cf-6a83-d049-92ab-00c7e7dcc8be",
