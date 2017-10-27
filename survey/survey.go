@@ -106,3 +106,14 @@ func (s *Survey) RecordAnswer(userId, answerText, channel string) (err error) {
 	s.Storage.UserAddAnswer(answer)
 	return nil
 }
+
+func (s *Survey) RecordGpsAnswer(userId string, lat, lon float64, address string, channel string) (err error) {
+	answer := domain.AnswerGps{
+		UserId:  userId,
+		Lat:     lat,
+		Lon:     lon,
+		Address: address,
+		Channel: channel,
+	}
+	return s.Storage.UserAddGpsAnswer(answer)
+}

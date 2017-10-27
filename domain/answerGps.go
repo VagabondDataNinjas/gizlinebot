@@ -7,6 +7,7 @@ type AnswerGps struct {
 	UserId    string
 	Lat       float64
 	Lon       float64
+	Address   string
 	Channel   string
 	Timestamp time.Time
 }

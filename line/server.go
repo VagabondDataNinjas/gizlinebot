@@ -100,6 +100,12 @@ func (ls *LineServer) Serve() error {
 
 			if event.Type == linebot.EventTypeMessage {
 				switch message := event.Message.(type) {
+				case *linebot.LocationMessage:
+					err = ls.Survey.RecordGpsAnswer(userId, message.Latitude, message.Longitude, message.Address, "line")
+					if err != nil {
+						log.Print(err)
+						break
+					}
 				case *linebot.TextMessage:
 					err = ls.Survey.RecordAnswer(userId, message.Text, "line")
 					if err != nil {
