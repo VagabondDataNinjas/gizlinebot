@@ -3,6 +3,7 @@ package storage
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"time"
 
@@ -261,6 +262,33 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 	defer stmt.Close()
 	_, err = stmt.Exec(answer.UserId, answer.QuestionId, answer.Answer, answer.Channel, int32(time.Now().UTC().Unix()))
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Sql) WipeUser(userId string) error {
+	for _, table := range []string{"user_profiles", "answers", "answers_gps"} {
+		err := s.deleteFromTableUserId(table, userId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *Sql) deleteFromTableUserId(table string, userId string) error {
+	// @TODO find out how to use dynamic table name in prepared query
+	q := fmt.Sprintf("DELETE FROM %s WHERE userId = ?", table)
+	stmt, err := s.Db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(userId)
 	if err != nil {
 		return err
 	}

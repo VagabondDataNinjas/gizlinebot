@@ -58,6 +58,8 @@ func (a *Api) Serve() error {
 
 	e.Static("/", "../gizsurvey/build")
 
+	e.Any("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot))
+
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 
