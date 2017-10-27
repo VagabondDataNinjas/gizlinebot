@@ -6,4 +6,8 @@ GIZLB_SQL_PORT="3306"
 
 GIZLB_LINE_SECRET=""
 GIZLB_LINE_TOKEN=""
+
+# host where the frontend files, API and linewebhook will be served from
+# used as {{.Hostname}} variable in templated vars
+GIZLB_HOSTNAME="https://7c44107f.ngrok.io"
 PORT="8888"

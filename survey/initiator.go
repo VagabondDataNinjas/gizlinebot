@@ -5,21 +5,25 @@ import (
 	"log"
 	"time"
 
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
+
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 type Initiator struct {
-	Bot     *linebot.Client
-	Storage storage.Storage
-	Survey  *Survey
+	Bot        *linebot.Client
+	Storage    storage.Storage
+	Survey     *Survey
+	GlobalVars *domain.GlobalTplVars
 }
 
-func NewInitiator(surv *Survey, s storage.Storage, bot *linebot.Client) *Initiator {
+func NewInitiator(surv *Survey, s storage.Storage, bot *linebot.Client, globalVars *domain.GlobalTplVars) *Initiator {
 	return &Initiator{
-		Bot:     bot,
-		Storage: s,
-		Survey:  surv,
+		Bot:        bot,
+		Storage:    s,
+		Survey:     surv,
+		GlobalVars: globalVars,
 	}
 }
 
@@ -28,7 +32,7 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 		userIds, err := i.Storage.GetUsersWithoutAnswers(delay)
 		if err != nil {
 			// @TODO log
-			fmt.Printf("\n\nError pooling for answers: %s", err)
+			fmt.Printf("\nError pooling for answers: %s", err)
 			errc <- err
 			continue
 		}
@@ -38,7 +42,11 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 		}
 
 		for _, userId := range userIds {
-			question, err := i.Survey.GetNextQuestion(userId)
+			questionVars := &QuestionTemplateVars{
+				UserId:   userId,
+				Hostname: i.GlobalVars.Hostname,
+			}
+			question, err := i.Survey.GetNextQuestion(userId, questionVars)
 			if err != nil {
 				log.Print(err)
 				continue

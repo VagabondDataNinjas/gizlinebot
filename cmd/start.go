@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/VagabondDataNinjas/gizlinebot/http"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
@@ -28,13 +29,21 @@ var startCmd = &cobra.Command{
 		checkErr(err)
 		surv := survey.NewSurvey(s, qs)
 
+		globalVars := &domain.GlobalTplVars{
+			Hostname: cfgStr("HOSTNAME"),
+		}
+
 		errc := make(chan error)
-		initiator := survey.NewInitiator(surv, s, bot)
+		initiator := survey.NewInitiator(surv, s, bot, globalVars)
 		go func() {
 			initiator.Monitor(120, errc)
 		}()
 
-		api := http.NewApi(cfgPort(), s, bot, surv)
+		apiConf := &http.ApiConf{
+			Port:       cfgPort(),
+			GlobalVars: globalVars,
+		}
+		api := http.NewApi(s, bot, surv, apiConf)
 		checkErr(api.Serve())
 	},
 }

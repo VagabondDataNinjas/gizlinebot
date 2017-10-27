@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
+
 	"github.com/labstack/echo"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
@@ -12,9 +14,8 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *linebot.Client) func(c echo.Context) error {
+func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *linebot.Client, globalVars *domain.GlobalTplVars) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		fmt.Printf("\nLineWebHook!!!\n")
 		events, err := bot.ParseRequest(c.Request())
 		if err != nil {
 			if err == linebot.ErrInvalidSignature {
@@ -27,6 +28,11 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 		}
 		for _, event := range events {
 			userId := event.Source.UserID
+			questionTplVars := &survey.QuestionTemplateVars{
+				UserId:   userId,
+				Hostname: globalVars.Hostname,
+			}
+
 			eventString, err := json.Marshal(event)
 			if err != nil {
 				log.Printf("[err] Could not marshal event: %+v; err: %s", event, err)
@@ -57,7 +63,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 				}
 
 				if hasAnswers {
-					question, err := surv.GetNextQuestion(userId)
+					question, err := surv.GetNextQuestion(userId, questionTplVars)
 					if err != nil {
 						log.Print(err)
 						continue
@@ -68,7 +74,8 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 					}
 				} else {
 					welcomeTplVars := &storage.WelcomeMsgTplVars{
-						UserId: userId,
+						UserId:   userId,
+						Hostname: globalVars.Hostname,
 					}
 					welcomeMsgs, err := s.GetWelcomeMsgs(welcomeTplVars)
 					if err != nil {
@@ -99,7 +106,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 						break
 					}
 
-					question, err := surv.GetNextQuestion(userId)
+					question, err := surv.GetNextQuestion(userId, questionTplVars)
 					if err != nil {
 						log.Print(err)
 						break

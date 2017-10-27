@@ -205,7 +205,8 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 }
 
 type WelcomeMsgTplVars struct {
-	UserId string
+	UserId   string
+	Hostname string
 }
 
 func (s *Sql) GetWelcomeMsgs(tplVars *WelcomeMsgTplVars) (msgs []string, err error) {

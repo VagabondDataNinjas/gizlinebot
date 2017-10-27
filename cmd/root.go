@@ -94,7 +94,7 @@ func cfgStr(key string) string {
 }
 
 func validateEnv() {
-	reqEnv := []string{"LINE_SECRET", "LINE_TOKEN", "SQL_DB", "SQL_USER", "SQL_PASS", "SQL_HOST", "SQL_PORT"}
+	reqEnv := []string{"HOSTNAME", "LINE_SECRET", "LINE_TOKEN", "SQL_DB", "SQL_USER", "SQL_PASS", "SQL_HOST", "SQL_PORT"}
 	for _, v := range reqEnv {
 		if val := cfgStr(v); val == "" {
 			checkErr(errors.New("GIZLB_" + v + " is not defined in config file or variable"))

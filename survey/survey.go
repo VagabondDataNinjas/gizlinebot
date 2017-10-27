@@ -9,7 +9,8 @@ import (
 )
 
 type QuestionTemplateVars struct {
-	UserId string
+	UserId   string
+	Hostname string
 }
 
 type Survey struct {
@@ -24,7 +25,7 @@ func NewSurvey(storage storage.Storage, questions *domain.Questions) (survey *Su
 	}
 }
 
-func (s *Survey) GetNextQuestion(userId string) (question *domain.Question, err error) {
+func (s *Survey) GetNextQuestion(userId string, tplVars *QuestionTemplateVars) (question *domain.Question, err error) {
 	q, err := s.getNextQuestionRaw(userId)
 	if err != nil {
 		return question, err
@@ -35,10 +36,7 @@ func (s *Survey) GetNextQuestion(userId string) (question *domain.Question, err 
 	}
 	buf := new(bytes.Buffer)
 
-	vars := QuestionTemplateVars{
-		UserId: userId,
-	}
-	err = tmpl.Execute(buf, vars)
+	err = tmpl.Execute(buf, tplVars)
 	if err != nil {
 		return question, err
 	}
