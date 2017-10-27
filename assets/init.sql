@@ -16,15 +16,15 @@ CREATE TABLE `linebot_raw_events` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- Stores all answers sent by a user
 CREATE TABLE `answers` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Line userId',
   `questionId` varchar(10) NOT NULL DEFAULT '' COMMENT 'The question Id',
   `answer` text NOT NULL COMMENT 'User entered answer',
   `timestamp` int(11) NOT NULL,
+  `channel` varchar(10) NOT NULL DEFAULT '' COMMENT '"line" or "web" - the channel where the answer was receieved from',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `answers_gps` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -32,6 +32,7 @@ CREATE TABLE `answers_gps` (
   `lat` decimal(10,8) NOT NULL COMMENT 'Latitude',
   `lon` decimal(11,8) NOT NULL COMMENT 'Longitude',
   `timestamp` int(11) NOT NULL,
+  `channel` varchar(10) NOT NULL DEFAULT '' COMMENT '"line" or "web" - the channel where the answer was receieved from',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -75,4 +76,4 @@ CREATE TABLE `welcome_msgs` (
 INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
 VALUES
 	(1, 'Thank you for following us!\nYou can find out more about us: https://www.youtube.com/watch?v=Vec5DML9yp4', -4, 'line'),
-	(2, 'Please fill in the following survey in order to help our cause https://survey.delta9.link?uid={{.UserId}}', -1, 'line');
+	(2, 'Please fill in the following survey in order to help our cause https://survey.delta9.link/?uid={{.UserId}}', -1, 'line');

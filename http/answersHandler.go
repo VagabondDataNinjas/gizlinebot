@@ -43,6 +43,7 @@ func AnswerHandlerBuilder(s storage.Storage) func(c echo.Context) error {
 				UserId:     payload.UserId,
 				QuestionId: answer.QuestionId,
 				Answer:     answer.Answer,
+				Channel:    "web",
 			})
 			if err != nil {
 				return err

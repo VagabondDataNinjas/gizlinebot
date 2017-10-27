@@ -253,12 +253,12 @@ func (s *Sql) applyWelcomeTpl(msg string, tplVars *WelcomeMsgTplVars) (string, e
 }
 
 func (s *Sql) UserAddAnswer(answer domain.Answer) error {
-	stmt, err := s.Db.Prepare("INSERT INTO answers(userId, questionId, answer, timestamp) VALUES(?, ?, ?, ?)")
+	stmt, err := s.Db.Prepare("INSERT INTO answers(userId, questionId, answer, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(answer.UserId, answer.QuestionId, answer.Answer, int32(time.Now().UTC().Unix()))
+	_, err = stmt.Exec(answer.UserId, answer.QuestionId, answer.Answer, answer.Channel, int32(time.Now().UTC().Unix()))
 
 	if err != nil {
 		return err
@@ -268,12 +268,12 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 }
 
 func (s *Sql) UserAddGpsAnswer(answer domain.AnswerGps) error {
-	stmt, err := s.Db.Prepare("INSERT INTO answers_gps(userId, lat, lon, timestamp) VALUES(?, ?, ?, ?)")
+	stmt, err := s.Db.Prepare("INSERT INTO answers_gps(userId, lat, lon, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(answer.UserId, answer.Lat, answer.Lon, int32(time.Now().UTC().Unix()))
+	_, err = stmt.Exec(answer.UserId, answer.Lat, answer.Lon, answer.Channel, int32(time.Now().UTC().Unix()))
 
 	if err != nil {
 		return err

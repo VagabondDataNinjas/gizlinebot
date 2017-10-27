@@ -37,9 +37,10 @@ func AnswerGpsHandlerBuilder(s storage.Storage) func(c echo.Context) error {
 		// @TODO check that the question_ids exist in the questions table
 
 		err = s.UserAddGpsAnswer(domain.AnswerGps{
-			UserId: payload.UserId,
-			Lat:    payload.Location.Lat,
-			Lon:    payload.Location.Lon,
+			UserId:  payload.UserId,
+			Lat:     payload.Location.Lat,
+			Lon:     payload.Location.Lon,
+			Channel: "web",
 		})
 		if err != nil {
 			return err

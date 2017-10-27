@@ -65,15 +65,16 @@ func (s *Survey) getNextQuestionRaw(userId string) (question *domain.Question, e
 	return s.Questions.Next(answer.QuestionId)
 }
 
-func (s *Survey) RecordAnswer(userId, answerText string) (err error) {
+func (s *Survey) RecordAnswer(userId, answerText, channel string) (err error) {
 	has, err := s.Storage.UserHasAnswers(userId)
 	if err != nil {
 		return err
 	}
 
 	answer := domain.Answer{
-		UserId: userId,
-		Answer: answerText,
+		UserId:  userId,
+		Answer:  answerText,
+		Channel: channel,
 	}
 	// if the user has not answered any of the questions
 	// record this answer against the first question

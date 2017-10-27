@@ -7,5 +7,6 @@ type Answer struct {
 	UserId     string
 	QuestionId string
 	Answer     string
+	Channel    string
 	Timestamp  time.Time
 }
