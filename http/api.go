@@ -7,6 +7,7 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/VagabondDataNinjas/gizlinebot/survey"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -15,14 +16,16 @@ import (
 type Api struct {
 	Storage storage.Storage
 	LineBot *linebot.Client
+	Surv    *survey.Survey
 	Port    int
 }
 
-func NewApi(port int, s storage.Storage, lb *linebot.Client) *Api {
+func NewApi(port int, s storage.Storage, lb *linebot.Client, surv *survey.Survey) *Api {
 	return &Api{
 		Storage: s,
 		Port:    port,
 		LineBot: lb,
+		Surv:    surv,
 	}
 }
 
@@ -39,10 +42,13 @@ func (a *Api) Serve() error {
 	if err != nil {
 		return err
 	}
+	e.POST("/linewebhook", LineWebhookHandlerBuilder(a.Surv, a.Storage, a.LineBot))
 
 	e.GET("/api/webform/questions", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, qs)
 	})
+
+	e.Static("/", "../gizsurvey/build")
 
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))

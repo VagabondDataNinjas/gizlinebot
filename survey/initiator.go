@@ -1,4 +1,4 @@
-package line
+package survey
 
 import (
 	"fmt"
@@ -6,17 +6,16 @@ import (
 	"time"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
-	"github.com/VagabondDataNinjas/gizlinebot/survey"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 type Initiator struct {
 	Bot     *linebot.Client
 	Storage storage.Storage
-	Survey  *survey.Survey
+	Survey  *Survey
 }
 
-func NewInitiator(surv *survey.Survey, s storage.Storage, bot *linebot.Client) *Initiator {
+func NewInitiator(surv *Survey, s storage.Storage, bot *linebot.Client) *Initiator {
 	return &Initiator{
 		Bot:     bot,
 		Storage: s,

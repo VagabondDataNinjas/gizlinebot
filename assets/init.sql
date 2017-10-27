@@ -26,10 +26,11 @@ CREATE TABLE `answers` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+
 CREATE TABLE `answers_gps` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Line userId',
-  `address` varchar(255) NOT NULL COMMENT 'Certain channels (eg. line) provide an address field in the location message',
+  `address` text NOT NULL COMMENT 'Certain channels (eg. line) provide an address field in the location message',
   `lat` decimal(10,8) NOT NULL COMMENT 'Latitude',
   `lon` decimal(11,8) NOT NULL COMMENT 'Longitude',
   `timestamp` int(11) NOT NULL,

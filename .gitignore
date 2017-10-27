@@ -15,3 +15,5 @@
 vendor/
 
 .env
+# ignore compiled binary main.go file
+main
