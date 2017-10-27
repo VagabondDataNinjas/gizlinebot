@@ -37,6 +37,14 @@ func NewApi(s storage.Storage, lb *linebot.Client, surv *survey.Survey, conf *Ap
 	}
 }
 
+// cache-busting middleware
+func NoCacheMW(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		return next(c)
+	}
+}
+
 func (a *Api) Serve() error {
 	e := echo.New()
 	// Middleware
@@ -56,9 +64,9 @@ func (a *Api) Serve() error {
 		return c.JSON(http.StatusOK, qs)
 	})
 
-	e.Static("/", "../gizsurvey/build")
+	e.Group("/", NoCacheMW).Static("", "../gizsurvey/build")
 
-	e.Any("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot))
+	e.GET("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
 
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
