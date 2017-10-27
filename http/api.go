@@ -65,6 +65,7 @@ func (a *Api) Serve() error {
 	})
 
 	e.Group("/", NoCacheMW).Static("", "../gizsurvey/build")
+	e.Group("/static", NoCacheMW).Static("", "../gizsurvey/build/static")
 
 	e.GET("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
 
