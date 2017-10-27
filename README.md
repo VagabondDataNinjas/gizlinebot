@@ -41,3 +41,15 @@ go run main.go lineBot
 # web API
 go run main.go webApi
 ```
+
+## Release process
+
+Requirements:
+
+* you'll need to have your github token exported: `export GITHUB_TOKEN="YOUR_GITHUB_TOKEN"`
+* install goreleaser: `brew install goreleaser/tap/goreleaser`
+
+Release steps:
+
+* tag a new release: `git tag -a v0.0.4 -m "Commit message describing your release" && git push origin v0.0.4`
+* release `goreleaser`
