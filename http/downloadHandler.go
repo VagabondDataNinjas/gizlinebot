@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -43,7 +44,7 @@ func DownloadHandlerBuilder(s storage.Storage) func(e echo.Context) error {
 				// skip gps - we'll add it later
 				continue
 			}
-			csvHead = append(csvHead, q.Id)
+			csvHead = append(csvHead, strings.Title(q.Id))
 		}
 		// add GPS related headers
 		csvGpsIndex := len(csvHead)
@@ -66,7 +67,7 @@ func DownloadHandlerBuilder(s storage.Storage) func(e echo.Context) error {
 		for _, answer := range answerData {
 			// insert the cell data at the correct index based on csv head row
 			for index, headCell := range csvHead {
-				if headCell != answer.QuestionId {
+				if strings.ToLower(headCell) != strings.ToLower(answer.QuestionId) {
 					continue
 				}
 				if csvRow[0] == "" {
