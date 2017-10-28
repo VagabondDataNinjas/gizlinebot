@@ -75,6 +75,8 @@ func (a *Api) Serve() error {
 	// @TODO add authentication
 	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
 
+	e.GET("/api/admin/download/profiles.csv", DownloadHandlerBuilder(a.Storage))
+
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
 	return nil
 }

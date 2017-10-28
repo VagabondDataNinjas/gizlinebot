@@ -19,6 +19,7 @@ type Questions struct {
 	text    []string
 	ids     []string
 	weights []int
+	channel []string
 }
 
 func NewQuestions() *Questions {
@@ -29,14 +30,15 @@ func (qs *Questions) MarshalJSON() ([]byte, error) {
 	q := make(map[string]map[string]string)
 	for index, id := range qs.ids {
 		q[id] = map[string]string{
-			"text":   qs.text[index],
-			"weight": strconv.Itoa(qs.weights[index]),
+			"text":    qs.text[index],
+			"weight":  strconv.Itoa(qs.weights[index]),
+			"channel": qs.channel[index],
 		}
 	}
 	return json.Marshal(q)
 }
 
-func (qs *Questions) Add(id, question string, weight int) error {
+func (qs *Questions) Add(id, question string, weight int, channel string) error {
 	for _, existingId := range qs.ids {
 		if existingId == id {
 			return ErrQuestionsIdExists
@@ -45,7 +47,12 @@ func (qs *Questions) Add(id, question string, weight int) error {
 	qs.text = append(qs.text, question)
 	qs.ids = append(qs.ids, id)
 	qs.weights = append(qs.weights, weight)
+	qs.channel = append(qs.channel, channel)
 	return nil
+}
+
+func (qs *Questions) Len() int {
+	return len(qs.ids)
 }
 
 func (qs *Questions) At(index int) (q *Question, err error) {
@@ -53,9 +60,10 @@ func (qs *Questions) At(index int) (q *Question, err error) {
 		return q, ErrQuestionsIndexOutOfRange
 	}
 	return &Question{
-		Id:     qs.ids[index],
-		Text:   qs.text[index],
-		Weight: qs.weights[index],
+		Id:      qs.ids[index],
+		Text:    qs.text[index],
+		Weight:  qs.weights[index],
+		Channel: qs.channel[index],
 	}, nil
 }
 
@@ -79,8 +87,9 @@ func (qs *Questions) Last() (q *Question, err error) {
 	}
 
 	return &Question{
-		Id:     qs.ids[len(qs.ids)-1],
-		Text:   qs.text[len(qs.text)-1],
-		Weight: qs.weights[len(qs.weights)-1],
+		Id:      qs.ids[len(qs.ids)-1],
+		Text:    qs.text[len(qs.text)-1],
+		Weight:  qs.weights[len(qs.weights)-1],
+		Channel: qs.channel[len(qs.channel)-1],
 	}, nil
 }

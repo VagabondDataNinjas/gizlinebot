@@ -178,8 +178,9 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 		id           string
 		questionText string
 		weight       int
+		channel      string
 	)
-	rows, err := s.Db.Query(`SELECT id, question, weight FROM questions ORDER BY weight ASC`)
+	rows, err := s.Db.Query(`SELECT id, question, weight, channel FROM questions ORDER BY weight ASC`)
 	if err != nil {
 		return qs, err
 	}
@@ -187,11 +188,11 @@ func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
 
 	qs = domain.NewQuestions()
 	for rows.Next() {
-		err := rows.Scan(&id, &questionText, &weight)
+		err := rows.Scan(&id, &questionText, &weight, &channel)
 		if err != nil {
 			return qs, err
 		}
-		err = qs.Add(id, questionText, weight)
+		err = qs.Add(id, questionText, weight, channel)
 		if err != nil {
 			return qs, err
 		}
@@ -239,6 +240,95 @@ func (s *Sql) GetWelcomeMsgs(tplVars *WelcomeMsgTplVars) (msgs []string, err err
 	}
 
 	return msgs, nil
+}
+
+type UserAnswerData struct {
+	// @TODO embed domain.Answer
+	// domain.Answer
+	Id         uint
+	UserId     string
+	QuestionId string
+	Answer     string
+	Channel    string
+	Timestamp  int
+}
+
+type UserGpsAnswerData struct {
+	Id        uint
+	UserId    string
+	Address   string
+	Lat       float64
+	Lon       float64
+	Timestamp int
+	Channel   string
+}
+
+func (s *Sql) GetGpsAnswerData() (answerGpsData []UserGpsAnswerData, err error) {
+	rows, err := s.Db.Query(`SELECT p.id, p.userId, a.address, a.lat, a.lon, a.channel, a.timestamp FROM user_profiles p
+		LEFT JOIN answers_gps a ON a.userId = p.userId
+		ORDER BY a.timestamp ASC
+		`)
+	if err != nil {
+		return answerGpsData, err
+	}
+	defer rows.Close()
+
+	answerGpsData = make([]UserGpsAnswerData, 0)
+	for rows.Next() {
+		a := UserGpsAnswerData{}
+		err := rows.Scan(&a.Id, &a.UserId, &a.Address, &a.Lat, &a.Lon, &a.Channel, &a.Timestamp)
+		if err != nil {
+			return answerGpsData, err
+		}
+		answerGpsData = append(answerGpsData, a)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return answerGpsData, err
+	}
+
+	return answerGpsData, nil
+
+}
+func (s *Sql) GetUserAnswerData() (answerData []UserAnswerData, err error) {
+	var (
+		userId     string
+		questionId string
+		answer     string
+		channel    string
+		answerTime int
+	)
+	rows, err := s.Db.Query(`SELECT p.userId, a.questionId, a.answer, a.channel, a.timestamp as answerTime FROM user_profiles p
+		LEFT JOIN answers a ON a.userId = p.userId
+		ORDER BY a.timestamp ASC
+		`)
+	if err != nil {
+		return answerData, err
+	}
+	defer rows.Close()
+
+	answerData = make([]UserAnswerData, 0)
+	for rows.Next() {
+		err := rows.Scan(&userId, &questionId, &answer, &channel, &answerTime)
+		if err != nil {
+			return answerData, err
+		}
+		answerData = append(answerData, UserAnswerData{
+			UserId:     userId,
+			QuestionId: questionId,
+			Answer:     answer,
+			Channel:    channel,
+			Timestamp:  answerTime,
+		})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return answerData, err
+	}
+
+	return answerData, nil
 }
 
 func (s *Sql) applyWelcomeTpl(msg string, tplVars *WelcomeMsgTplVars) (string, error) {

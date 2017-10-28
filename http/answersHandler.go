@@ -1,6 +1,7 @@
 package http
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
@@ -25,14 +26,17 @@ func AnswerHandlerBuilder(s storage.Storage) func(c echo.Context) error {
 		payload := new(AnswersRequest)
 
 		if err := c.Bind(payload); err != nil {
+			log.Printf("Bind error: %s", err)
 			return err
 		}
 
 		profile, err := s.GetUserProfile(payload.UserId)
 		if err != nil {
+			log.Printf("Error fetching user profile %s: %s", payload.UserId, err)
 			return err
 		}
 		if profile.UserId == "" {
+			log.Printf("Missing user id %s", payload.UserId)
 			return c.JSON(http.StatusBadRequest, map[string]string{"status": "error", "reason": "user_id not found"})
 		}
 

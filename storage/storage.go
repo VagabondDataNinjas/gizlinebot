@@ -10,6 +10,8 @@ type Storage interface {
 	GetUserProfile(userId string) (domain.UserProfile, error)
 	MarkProfileBotSurveyInited(userId string) error
 	GetUsersWithoutAnswers(sinceUnixTs int64) (userIds []string, err error)
+	GetUserAnswerData() ([]UserAnswerData, error)
+	GetGpsAnswerData() ([]UserGpsAnswerData, error)
 	AddUserProfile(userId, displayName string) error
 	UserHasAnswers(userId string) (bool, error)
 	UserGetLastAnswer(userId string) (domain.Answer, error)
