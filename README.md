@@ -53,3 +53,10 @@ Release steps:
 
 * tag a new release: `git tag -a v0.0.4 -m "Commit message describing your release" && git push origin v0.0.4`
 * release `goreleaser`
+
+## Static files and endpoints
+
+* This binary will serve static files from the [gizsurvey](https://github.com/VagabondDataNinjas/gizsurvey) repo
+which should be located on the same folder level at ../gizsurvey (path relative to this repo)
+
+The API endpoints are defined in [./http/api.go](./http/api.go)
