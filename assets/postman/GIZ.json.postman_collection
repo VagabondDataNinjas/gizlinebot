@@ -5,8 +5,10 @@
 	"order": [
 		"242f8a06-fc88-d868-b229-ff277dc52ed8",
 		"d886d2cf-6a83-d049-92ab-00c7e7dcc8be",
+		"add4b46b-f7cc-734a-09f8-3848e1ae9c3f",
+		"76d967d5-fc38-cca0-f223-d5552b2355bb",
 		"839964ee-9678-9354-6f7d-3e3ed150e17f",
-		"add4b46b-f7cc-734a-09f8-3848e1ae9c3f"
+		"b189c19b-c371-15d1-bb93-d12a8fa656df"
 	],
 	"folders": [],
 	"timestamp": 1508953296270,
@@ -32,6 +34,26 @@
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
 			"rawModeData": "{\n    \"user_id\": \"Uf8a8cf68247060757bd2e5b2a4954dd2\",\n    \"answers\": [\n        {\n            \"question_id\": \"location\",\n            \"answer\": \"Kho tao\"\n        },\n        {\n            \"question_id\": \"price\",\n            \"answer\": \"32thb/l khrap\"\n        }\n    ]\n}\n"
+		},
+		{
+			"id": "76d967d5-fc38-cca0-f223-d5552b2355bb",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:8888/api/user/wipe/Uf8a8cf68247060757bd2e5b2a4954dd2",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"data": null,
+			"dataMode": "params",
+			"name": "/api/user/wipe/:userid",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1509088426165,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
 		},
 		{
 			"id": "839964ee-9678-9354-6f7d-3e3ed150e17f",
@@ -70,6 +92,26 @@
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
 			"rawModeData": "{\n    \"user_id\": \"Uf8a8cf68247060757bd2e5b2a4954dd2\",\n    \"location\": {\n        \"lat\": 14.744868,\n        \"lon\": 98.832069\n    }\n}\n"
+		},
+		{
+			"id": "b189c19b-c371-15d1-bb93-d12a8fa656df",
+			"headers": "",
+			"url": "http://localhost:8888/api/admin/download/profiles.csv",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"data": null,
+			"dataMode": "params",
+			"name": "/api/admin/download/profiles.csv",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1509197386040,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
 		},
 		{
 			"id": "d886d2cf-6a83-d049-92ab-00c7e7dcc8be",

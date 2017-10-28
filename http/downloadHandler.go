@@ -18,7 +18,7 @@ func DownloadHandlerBuilder(s storage.Storage) func(e echo.Context) error {
 	return func(c echo.Context) error {
 		c.Response().Header().Set(echo.HeaderContentType, "text/csv")
 		c.Response().Header().Set("Content-Description", "File Transfer")
-		c.Response().Header().Set("Content-Disposition", "attachment; filename=user_data.csv")
+		c.Response().Header().Set("Content-Disposition", "attachment; filename=profiles.csv")
 		c.Response().WriteHeader(http.StatusOK)
 
 		b := &bytes.Buffer{}
