@@ -264,7 +264,7 @@ type UserGpsAnswerData struct {
 }
 
 func (s *Sql) GetGpsAnswerData() (answerGpsData []UserGpsAnswerData, err error) {
-	rows, err := s.Db.Query(`SELECT p.id, p.userId, IFNULL(a.address, ""), IFNULL(a.lat, "") AS lat, IFNULL(a.lon, "") AS lon, IFNULL(a.channel, "") AS channel, IFNULL(a.timestamp, 0) AS timestamp FROM user_profiles p
+	rows, err := s.Db.Query(`SELECT p.id, p.userId, IFNULL(a.address, ""), IFNULL(a.lat, 0.0), IFNULL(a.lon, 0.0), IFNULL(a.channel, ""), IFNULL(a.timestamp, 0) FROM user_profiles p
 		LEFT JOIN answers_gps a ON a.userId = p.userId
 		ORDER BY a.timestamp ASC
 		`)
@@ -299,7 +299,7 @@ func (s *Sql) GetUserAnswerData() (answerData []UserAnswerData, err error) {
 		channel    string
 		answerTime int
 	)
-	rows, err := s.Db.Query(`SELECT p.userId, a.questionId, a.answer, a.channel, a.timestamp as answerTime FROM user_profiles p
+	rows, err := s.Db.Query(`SELECT p.userId, IFNULL(a.questionId, ""), IFNULL(a.answer, ""), IFNULL(a.channel, ""), IFNULL(a.timestamp, 0) as answerTime FROM user_profiles p
 		LEFT JOIN answers a ON a.userId = p.userId
 		ORDER BY a.timestamp ASC
 		`)
