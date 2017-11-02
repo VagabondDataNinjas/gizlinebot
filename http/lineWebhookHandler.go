@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 
@@ -44,6 +45,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 			}
 
 			if event.Type == linebot.EventTypeFollow {
+				log.Printf("User %s follow event", userId)
 				userProfileResp, err := bot.GetProfile(userId).Do()
 				if err != nil {
 					log.Print(err)
@@ -82,10 +84,26 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 						log.Print(err)
 						continue
 					}
+					log.Printf("User %s: sending welcome messages", userId)
 					for _, welcomeMsg := range welcomeMsgs {
-						if _, err = bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
-							log.Print(err)
-							continue
+						// check if the message is a video one
+						isVideoMsg, _ := regexp.MatchString(".*.mp4", welcomeMsg)
+						if isVideoMsg {
+							vidMsgRegex := regexp.MustCompile("\\|")
+							vidAndPreview := vidMsgRegex.Split(welcomeMsg, -1)
+							if len(vidAndPreview) != 2 {
+								log.Printf("Unexpected video message format. Got: \"%s\"", welcomeMsg)
+								continue
+							}
+							if _, err := bot.PushMessage(userId, linebot.NewVideoMessage(vidAndPreview[0], vidAndPreview[1])).Do(); err != nil {
+								log.Print(err)
+								continue
+							}
+						} else {
+							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
+								log.Print(err)
+								continue
+							}
 						}
 					}
 				}
