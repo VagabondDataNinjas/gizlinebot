@@ -77,6 +77,7 @@ CREATE TABLE `welcome_msgs` (
 
 INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
 VALUES
-	(1, 'Thank you for following us!\nYou can find out more about us: https://www.youtube.com/watch?v=Vec5DML9yp4', -4, 'line'),
-	(2, 'Please fill in the following survey in order to help our cause {{.Hostname}}/?uid={{.UserId}}', -1, 'line'),
-	(3, 'Message shown only in test environment: you can remove all your profile and answer data at any time by accessing the following link: {{.Hostname}}/api/user/wipe/{{.UserId}}\n', 0, 'line');
+	(1, 'Thank you for following us!\nPlease fill in the following survey in order to help our cause {{.Hostname}}/?uid={{.UserId}}', -4, 'line'),
+	(3, 'Message shown only in test environment: you can remove all your profile and answer data at any time by accessing the following link: {{.Hostname}}/api/user/wipe/{{.UserId}}\n', 0, 'line'),
+	(4, '{{.Hostname}}/media/vfe.mp4|{{.Hostname}}/media/birdy.jpg', 1, 'line'),
+	(5, '{{.Hostname}}/media/toystory.mp4|{{.Hostname}}/media/toystory.jpg', 2, 'line');
