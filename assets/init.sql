@@ -270,7 +270,6 @@ VALUES
 	(170, 'Ko Ma', '', NULL, NULL),
 	(171, 'Ko Ha', '', NULL, NULL),
 	(172, 'Phuket', 'ภูเก็ต', NULL, NULL),
-	(173, 'Ko Lon', 'เกาะโหลน', NULL, NULL),
 	(174, 'Ko Mai Thon', 'เกาะไม้ท่อน', NULL, NULL),
 	(176, 'Ko Ngam (Phuket)', 'เกาะงำ', NULL, NULL),
 	(177, 'Ko Naka Yai', 'เกาะนาคาใหญ่', NULL, NULL),
