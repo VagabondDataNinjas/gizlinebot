@@ -60,10 +60,10 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('job', 'คุณเป็นใคร?', -9, 'both'),
-	('island', 'คุณอาศัยอยู่ที่เกาะอะไร', -8, 'both'),
-	('price', 'น้ำมันดีเซล (โซลาร์) บนเกาะของคุณราคาลิตรละกี่บาท (ราคาที่ขายหรือซื้อจากร้านค้าหรือตัวแทนบนเกาะ)', -5, 'both'),
-	('thank_you', 'ขอบคุณอีกครั้งที่ช่วยแบ่งปันข้อมูลให้เรา เราอยากเป็นเพื่อนกับคนที่อยู่บนเกาะให้ได้มากที่สุดจากหลายๆเกาะ โปรดช่วยส่งเราต่อไปให้เพื่อนคนอื่นๆในไลน์ของคุณด้วยวิธีง่ายๆเพียง\n- คลิก “v” ตรงมุมขวาบนของหน้านี้\n- คลิก “แนะนำ”\n- เลือกเพื่อนของคุณที่อยู่บนเกาะเดียวกันนี้หรือบนเกาะอื่นและคลิก “ตกลง”', 0, 'both');
+	('job', 'What is your occupation?', -9, 'both'),
+	('island', 'What is the name of the island where you live?', -8, 'both'),
+	('price', 'How much for a litre of diesel do you sell or buy on the island?', -5, 'both'),
+	('thank_you', 'Thanks again for sharing the information with me. I want to reach as many people from as many islands as possible. Please help by sending me to your Line friends simply by \n-Click “v” on top right of this page\n-Click “Recommend”\n-Select friends from your and other islands and click “OK”!', 0, 'both');
 
 CREATE TABLE `welcome_msgs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -75,10 +75,10 @@ CREATE TABLE `welcome_msgs` (
 
 INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
 VALUES
-	(1, 'สวัสดีจ้า ขอบคุณมากที่มาเป็นเพื่อนกัน เราชื่อกรู๊ดส์ เรากำลังทดลองเก็บข้อมูลราคาน้ำมันดีเซล (โซลาร์) จากคนบนเกาะในประเทศไทย ลองมาทำความรู้จักว่ากรู๊ดส์เป็นใครมาจากไหน อยากรู้ราคาน้ำมันไปทำอะไรและจะเป็นประโยชน์กับเกาะของคุณยังไงกันเลย (วิดีโอ)', -4, 'line'),
+	(1, 'Hello, thanks for becoming friend with me. My name is Groots. I’m collecting diesel price on Thai islands. Learn more about who I am, why I need the diesel price and how it will benefit your island here', -4, 'line'),
 	(4, '{{.Hostname}}/media/groots_th.mp4|{{.Hostname}}/media/groots.png', -3, 'line'),
-	(3, 'รู้อย่างงี้แล้วมาเริ่มแบ่งปันข้อมูลให้เรากันเลย ( {{.Hostname}}/?uid={{.UserId}} )', 0, 'line'),
-	(7, 'Message shown only in test environment: you can remove all your profile and answer data at any time by accessing the following link: {{.Hostname}}/api/user/wipe/{{.UserId}}', 1, 'line');
+	(3, 'Let’s start sharing me the information here {{.Hostname}}/?uid={{.UserId}}', 0, 'line'),
+	(7, '** Only in test env: {{.Hostname}}/api/user/wipe/{{.UserId}} **', 1, 'line');
 
 CREATE TABLE `pricepoints` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -110,7 +110,7 @@ CREATE TABLE `config` (
 
 INSERT INTO `config` (`id`, `k`, `value`)
 VALUES
-	(1, 'price_th_tpl', 'ลิตรดีเซล (แสงอาทิตย์) ที่{{.Location}}ราคา{{.Price}}บาท');
+	(1, 'price_tpl', 'A litre of diesel on {{.Location}} costs {{.Price}} Baht');
 
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

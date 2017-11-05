@@ -388,7 +388,7 @@ func (s *Sql) GetPriceTplMsg() (string, error) {
 	var tplStr string
 	err := s.Db.QueryRow(`
 		SELECT value FROM config WHERE k = ?
-	`, "price_th_tpl").Scan(&tplStr)
+	`, "price_tpl").Scan(&tplStr)
 	if err != nil {
 		return "", err
 	}
@@ -446,10 +446,10 @@ func (s *Sql) userLastLocationAnswer(userId string) (string, error) {
 }
 
 func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []domain.LocationPrice, err error) {
-	rows, err := s.Db.Query(`SELECT thainame,
+	rows, err := s.Db.Query(`SELECT name,
 		id, latitude, longitude, price
 		FROM (
-				SELECT l.id, l.thainame,
+				SELECT l.id, l.name AS name,
 					l.latitude, l.longitude, AVG(pp.price) AS price,
 					p.radius,
 					p.distance_unit
