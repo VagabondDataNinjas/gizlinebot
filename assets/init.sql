@@ -84,11 +84,23 @@ CREATE TABLE `pricepoints` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL COMMENT '{user_profiles.id}',
   `price` float NOT NULL,
-  `currency` varchar(20) NOT NULL DEFAULT '',
+  `currency` varchar(20) NOT NULL DEFAULT 'thb',
   `location_id` int(11) NOT NULL COMMENT '{locations.id}',
   `time` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+INSERT INTO `pricepoints` (`id`, `user_id`, `price`, `currency`, `location_id`, `time`)
+VALUES
+	(1, 1, 35, 'thb', 230, 1509904925),
+	(2, 1, 28, 'thb', 231, 1509904925),
+	(3, 1, 27, 'thb', 232, 1509904925),
+	(4, 1, 33, 'thb', 233, 1509904925),
+	(5, 1, 38, 'thb', 234, 1509904925),
+	(6, 1, 26, 'thb', 235, 1509904925),
+	(7, 1, 31, 'thb', 236, 1509904925),
+	(8, 1, 33, 'thb', 237, 1509904925);
+
+
 
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -267,4 +279,12 @@ VALUES
 	(226, 'Ko Muk', 'เกาะมุก', 7.37331200, 99.29551600),
 	(227, 'Ko Racha Yai', 'เกาะราชาใหญ่', 7.59846600, 98.36635300),
 	(228, 'Ko Lamphu', 'เกาะลำพู', 9.13500000, 99.30100000),
-	(229, 'Ko Lamphu Rai', 'เกาะลำพูราย', 12.20000000, 102.58300000);
+	(229, 'Ko Lamphu Rai', 'เกาะลำพูราย', 12.20000000, 102.58300000),
+	(230, 'Ko Panyi', 'เกาะปันหยี', 8.33543000, 98.50453000),
+	(231, 'Ko Lon', 'เกาะโหลน', 7.78651700, 98.37184600),
+	(232, 'Ko Naga Noi', 'เกาะ นาคา น้อย', 8.02819100, 98.46050400),
+	(233, 'Ko Phra Thong', 'เกาะพระทอง', 9.09319600, 98.29515300),
+	(234, 'Ko Por', 'เกาะปอ', 7.53622900, 99.12782200),
+	(235, 'Ko Bulon Don', 'เกะดอน', 6.85621000, 99.59314000),
+	(236, 'Ko Mak Noi', 'เกาะหมากน้อย', 8.28506160, 98.59035210),
+	(237, 'Ko Mai Phai', 'เกาะไม้ไผ่', 7.81670000, 98.79546000);
