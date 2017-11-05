@@ -60,12 +60,10 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('job', 'What is your occupation?', -9, 'both'),
-	('gps', 'What is your location', -8, 'web'),
-	('island', 'What is the name of your island where you live?', -8, 'both'),
-	('price', 'How much do you pay for diesel in your area?', -5, 'both'),
-	('lineid', 'What is your line id?', -1, 'both'),
-	('thank_you', 'Thank you for all your help! We might ask you more questions in the future', 0, 'both');
+	('job', 'คุณเป็นใคร?', -9, 'both'),
+	('island', 'คุณอาศัยอยู่ที่เกาะอะไร', -8, 'both'),
+	('price', 'น้ำมันดีเซล (โซลาร์) บนเกาะของคุณราคาลิตรละกี่บาท (ราคาที่ขายหรือซื้อจากร้านค้าหรือตัวแทนบนเกาะ)', -5, 'both'),
+	('thank_you', 'ขอบคุณอีกครั้งที่ช่วยแบ่งปันข้อมูลให้เรา เราอยากเป็นเพื่อนกับคนที่อยู่บนเกาะให้ได้มากที่สุดจากหลายๆเกาะ โปรดช่วยส่งเราต่อไปให้เพื่อนคนอื่นๆในไลน์ของคุณด้วยวิธีง่ายๆเพียง\n- คลิก “v” ตรงมุมขวาบนของหน้านี้\n- คลิก “แนะนำ”\n- เลือกเพื่อนของคุณที่อยู่บนเกาะเดียวกันนี้หรือบนเกาะอื่นและคลิก “ตกลง”', 0, 'both');
 
 CREATE TABLE `welcome_msgs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -77,7 +75,7 @@ CREATE TABLE `welcome_msgs` (
 
 INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
 VALUES
-	(1, 'Thank you for following us!\nPlease fill in the following survey in order to help our cause {{.Hostname}}/?uid={{.UserId}}', -4, 'line'),
-	(3, 'Message shown only in test environment: you can remove all your profile and answer data at any time by accessing the following link: {{.Hostname}}/api/user/wipe/{{.UserId}}\n', 0, 'line'),
-	(4, '{{.Hostname}}/media/vfe.mp4|{{.Hostname}}/media/birdy.jpg', 1, 'line'),
-	(5, '{{.Hostname}}/media/toystory.mp4|{{.Hostname}}/media/toystory.jpg', 2, 'line');
+	(1, 'สวัสดีจ้า ขอบคุณมากที่มาเป็นเพื่อนกัน เราชื่อกรู๊ดส์ เรากำลังทดลองเก็บข้อมูลราคาน้ำมันดีเซล (โซลาร์) จากคนบนเกาะในประเทศไทย ลองมาทำความรู้จักว่ากรู๊ดส์เป็นใครมาจากไหน อยากรู้ราคาน้ำมันไปทำอะไรและจะเป็นประโยชน์กับเกาะของคุณยังไงกันเลย (วิดีโอ)', -4, 'line'),
+	(4, '{{.Hostname}}/media/groots_th.mp4|{{.Hostname}}/media/groots.png', -3, 'line'),
+	(3, 'รู้อย่างงี้แล้วมาเริ่มแบ่งปันข้อมูลให้เรากันเลย ( {{.Hostname}}/?uid={{.UserId}} )', 0, 'line'),
+	(7, 'Message shown only in test environment: you can remove all your profile and answer data at any time by accessing the following link: {{.Hostname}}/api/user/wipe/{{.UserId}}', 1, 'line');
