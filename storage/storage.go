@@ -20,6 +20,7 @@ type Storage interface {
 	GetQuestions() (*domain.Questions, error)
 	GetWelcomeMsgs(tplVars *WelcomeMsgTplVars) ([]string, error)
 
+	GetLocations() ([]domain.LocationThai, error)
 	GetUserNearbyPrices(userId string) ([]domain.LocationPrice, error)
 	GetPriceTplMsg() (string, error)
 

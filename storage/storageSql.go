@@ -331,6 +331,31 @@ func (s *Sql) GetUserAnswerData() (answerData []UserAnswerData, err error) {
 	return answerData, nil
 }
 
+func (s *Sql) GetLocations() (locs []domain.LocationThai, err error) {
+	rows, err := s.Db.Query(`SELECT id, name, thainame, IFNULL(latitude, 0), IFNULL(longitude, 0) FROM locations`)
+	if err != nil {
+		return locs, err
+	}
+	defer rows.Close()
+
+	locs = make([]domain.LocationThai, 0)
+	for rows.Next() {
+		loc := domain.LocationThai{}
+		err := rows.Scan(&loc.Id, &loc.Name, &loc.NameThai, &loc.Latitude, &loc.Longitude)
+		if err != nil {
+			return locs, err
+		}
+		locs = append(locs, loc)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return locs, err
+	}
+
+	return locs, nil
+}
+
 func (s *Sql) applyWelcomeTpl(msg string, tplVars *WelcomeMsgTplVars) (string, error) {
 	tmpl, err := template.New("welcomeMsg").Parse(msg)
 	if err != nil {

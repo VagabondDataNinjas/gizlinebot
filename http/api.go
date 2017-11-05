@@ -72,6 +72,8 @@ func (a *Api) Serve() error {
 
 	e.GET("/api/user/prices/:userid", PriceHandler(a.Storage), NoCacheMW) // @TODO remove
 
+	e.GET("/api/islands", IslandsHandler(a.Storage), NoCacheMW)
+
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 

@@ -11,3 +11,8 @@ type LocationPrice struct {
 	Location
 	Price float64
 }
+
+type LocationThai struct {
+	Location
+	NameThai string
+}

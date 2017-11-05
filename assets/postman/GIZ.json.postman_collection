@@ -8,7 +8,8 @@
 		"add4b46b-f7cc-734a-09f8-3848e1ae9c3f",
 		"76d967d5-fc38-cca0-f223-d5552b2355bb",
 		"839964ee-9678-9354-6f7d-3e3ed150e17f",
-		"b189c19b-c371-15d1-bb93-d12a8fa656df"
+		"b189c19b-c371-15d1-bb93-d12a8fa656df",
+		"6b7544ee-cfd4-580e-e331-1d473d031158"
 	],
 	"folders": [],
 	"timestamp": 1508953296270,
@@ -34,6 +35,26 @@
 			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
 			"responses": [],
 			"rawModeData": "{\n    \"user_id\": \"Uf8a8cf68247060757bd2e5b2a4954dd2\",\n    \"answers\": [\n        {\n            \"question_id\": \"location\",\n            \"answer\": \"Kho tao\"\n        },\n        {\n            \"question_id\": \"price\",\n            \"answer\": \"32thb/l khrap\"\n        }\n    ]\n}\n"
+		},
+		{
+			"id": "6b7544ee-cfd4-580e-e331-1d473d031158",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:8888/api/islands",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"data": null,
+			"dataMode": "params",
+			"name": "/api/islands",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1509911885864,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
 		},
 		{
 			"id": "76d967d5-fc38-cca0-f223-d5552b2355bb",
