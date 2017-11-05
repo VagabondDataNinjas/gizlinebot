@@ -60,10 +60,10 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('job', 'What is your occupation?', -9, 'both'),
 	('island', 'What is the name of the island where you live?', -8, 'both'),
+	('job', 'What is your occupation?', -9, 'both'),
 	('price', 'How much for a litre of diesel do you sell or buy on the island?', -5, 'both'),
-	('thank_you', 'Thanks again for sharing the information with me. I want to reach as many people from as many islands as possible. Please help by sending me to your Line friends simply by \n-Click “v” on top right of this page\n-Click “Recommend”\n-Select friends from your and other islands and click “OK”!', 0, 'both');
+	('thank_you', 'Thanks again for sharing the information with me. I want to reach as many people from as many islands as possible. Please help by sending me to your Line friends simply by \n-Click “v” on top right of this page\n-Click “Recommend”\n-Select friends from your and other islands and click “OK”!\n\nI’ll come back for price update and will share back a more accurate price from other islands next time!', 0, 'both');
 
 CREATE TABLE `welcome_msgs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
