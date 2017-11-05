@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/line/line-bot-sdk-go/linebot"
+
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
@@ -21,7 +23,7 @@ type AnswerItem struct {
 	Answer     string `json:"answer"`
 }
 
-func AnswerHandlerBuilder(s storage.Storage) func(c echo.Context) error {
+func AnswerHandlerBuilder(s storage.Storage, bot *linebot.Client) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(AnswersRequest)
 
@@ -43,6 +45,13 @@ func AnswerHandlerBuilder(s storage.Storage) func(c echo.Context) error {
 		// @TODO check that the question_ids exist in the questions table
 
 		for _, answer := range payload.Answers {
+			if answer.QuestionId == "price" {
+				err = sendPriceList(bot, s, profile.UserId)
+				if err != nil {
+					log.Print(err)
+				}
+			}
+
 			err := s.UserAddAnswer(domain.Answer{
 				UserId:     payload.UserId,
 				QuestionId: answer.QuestionId,

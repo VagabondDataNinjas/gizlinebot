@@ -1,8 +1,10 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"text/template"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 
@@ -74,7 +76,7 @@ func (a *Api) Serve() error {
 
 	e.GET("/api/islands", IslandsHandler(a.Storage), NoCacheMW)
 
-	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
+	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage, a.LineBot))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 
 	// @TODO add authentication
@@ -98,4 +100,45 @@ func PriceHandler(s storage.Storage) func(c echo.Context) error {
 			"status": "success", "locs": lp,
 		})
 	}
+}
+
+func sendPriceList(bot *linebot.Client, s storage.Storage, userId string) error {
+	lp, err := s.GetUserNearbyPrices(userId)
+	if err != nil {
+		return err
+	}
+
+	tplStr, err := s.GetPriceTplMsg()
+	if err != nil {
+		return err
+	}
+	tmpl, err := template.New("priceMsg").Parse(tplStr)
+	if err != nil {
+		return err
+	}
+
+	type TplVars struct {
+		Location string
+		Price    float64
+	}
+
+	// @TODO check empty list of lp
+	var msg string
+	for _, loc := range lp {
+		buf := new(bytes.Buffer)
+		tplVars := TplVars{loc.Name, loc.Price}
+		err = tmpl.Execute(buf, tplVars)
+		if err != nil {
+			return err
+		}
+
+		msg += buf.String()
+		msg += "\n"
+	}
+
+	if _, err = bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
+		return err
+	}
+
+	return nil
 }
