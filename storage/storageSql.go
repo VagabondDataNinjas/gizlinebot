@@ -359,6 +359,124 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 	return nil
 }
 
+func (s *Sql) GetPriceTplMsg() (string, error) {
+	var tplStr string
+	err := s.Db.QueryRow(`
+		SELECT value FROM config WHERE k = ?
+	`, "price_th_tpl").Scan(&tplStr)
+	if err != nil {
+		return "", err
+	}
+
+	return tplStr, nil
+}
+
+func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {
+	locStr, err := s.userLastLocationAnswer(userId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return lp, nil
+		}
+		return lp, err
+	}
+
+	loc, err := s.findLocation(locStr)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return lp, nil
+		}
+		return lp, err
+	}
+
+	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 300.0, 3)
+}
+
+func (s *Sql) findLocation(locName string) (domain.Location, error) {
+	var loc = domain.Location{}
+	err := s.Db.QueryRow(`SELECT id, thainame, latitude, longitude
+		FROM locations
+		WHERE (name = ? OR thainame = ?)
+			AND latitude IS NOT NULL AND longitude IS NOT NULL
+		LIMIT 0,1
+		`, locName, locName).Scan(&loc.Id, &loc.Name, &loc.Latitude, &loc.Longitude)
+	if err != nil {
+		return loc, err
+	}
+
+	return loc, nil
+}
+
+func (s *Sql) userLastLocationAnswer(userId string) (string, error) {
+	var answer string
+	err := s.Db.QueryRow(`SELECT answer FROM answers
+		WHERE questionid = 'island' AND userId = ?
+			AND answer IS NOT NULL AND answer != ""
+		ORDER BY timestamp DESC LIMIT 0,1
+		`, userId).Scan(&answer)
+	if err != nil {
+		return "", err
+	}
+
+	return answer, nil
+}
+
+func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []domain.LocationPrice, err error) {
+	rows, err := s.Db.Query(`SELECT thainame,
+		id, latitude, longitude, price
+		FROM (
+				SELECT l.id, l.thainame,
+					l.latitude, l.longitude, AVG(pp.price) AS price,
+					p.radius,
+					p.distance_unit
+										* DEGREES(ACOS(COS(RADIANS(p.latpoint))
+										* COS(RADIANS(l.latitude))
+										* COS(RADIANS(p.longpoint - l.longitude))
+										+ SIN(RADIANS(p.latpoint))
+										* SIN(RADIANS(l.latitude)))
+					) AS distance
+				FROM locations AS l
+				INNER JOIN pricepoints pp
+					ON pp.location_id = l.id
+				JOIN (   /* these are the query parameters */
+						SELECT ? AS latpoint, ? AS longpoint,
+										? AS radius, 111.045 AS distance_unit
+					) AS p ON 1=1
+				WHERE l.latitude
+					BETWEEN p.latpoint  - (p.radius / p.distance_unit)
+							AND p.latpoint  + (p.radius / p.distance_unit)
+				AND l.longitude
+					BETWEEN p.longpoint - (p.radius / (p.distance_unit * COS(RADIANS(p.latpoint))))
+							AND p.longpoint + (p.radius / (p.distance_unit * COS(RADIANS(p.latpoint))))
+				GROUP BY l.id
+				) AS d
+		WHERE distance <= radius
+		ORDER BY distance ASC
+		/* Ignore the first result which is the island of the lat/lon args */
+		LIMIT 1, ?;
+		`, lat, lon, radius, limit)
+	if err != nil {
+		return locs, err
+	}
+	defer rows.Close()
+
+	locs = make([]domain.LocationPrice, 0)
+	for rows.Next() {
+		var lp = domain.LocationPrice{}
+		err := rows.Scan(&lp.Name, &lp.Id, &lp.Latitude, &lp.Longitude, &lp.Price)
+		if err != nil {
+			return locs, err
+		}
+		locs = append(locs, lp)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return locs, err
+	}
+
+	return locs, nil
+}
+
 func (s *Sql) WipeUser(userId string) error {
 	for _, table := range []string{"user_profiles", "answers", "answers_gps"} {
 		err := s.deleteFromTableUserId(table, userId)

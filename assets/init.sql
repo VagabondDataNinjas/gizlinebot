@@ -100,7 +100,17 @@ VALUES
 	(7, 1, 31, 'thb', 236, 1509904925),
 	(8, 1, 33, 'thb', 237, 1509904925);
 
+CREATE TABLE `config` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `k` varchar(255) NOT NULL DEFAULT '',
+  `value` text NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `key_unq` (`k`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+INSERT INTO `config` (`id`, `k`, `value`)
+VALUES
+	(1, 'price_th_tpl', 'ลิตรดีเซล (แสงอาทิตย์) ที่{{.Location}}ราคา{{.Price}}บาท');
 
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

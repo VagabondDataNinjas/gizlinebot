@@ -70,6 +70,8 @@ func (a *Api) Serve() error {
 
 	e.GET("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
 
+	e.GET("/api/user/prices/:userid", PriceHandler(a.Storage), NoCacheMW) // @TODO remove
+
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 
@@ -80,4 +82,18 @@ func (a *Api) Serve() error {
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
 	return nil
+}
+
+func PriceHandler(s storage.Storage) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		userId := c.Param("userid")
+		lp, err := s.GetUserNearbyPrices(userId)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status": "success", "locs": lp,
+		})
+	}
 }

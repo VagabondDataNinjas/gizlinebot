@@ -19,6 +19,10 @@ type Storage interface {
 	UserAddGpsAnswer(domain.AnswerGps) error
 	GetQuestions() (*domain.Questions, error)
 	GetWelcomeMsgs(tplVars *WelcomeMsgTplVars) ([]string, error)
+
+	GetUserNearbyPrices(userId string) ([]domain.LocationPrice, error)
+	GetPriceTplMsg() (string, error)
+
 	WipeUser(userId string) error
 	// cleanup any connection / file descriptors to the storage
 	Close() error
