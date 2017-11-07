@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -75,6 +76,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 						continue
 					}
 				} else {
+					log.Printf("User %s: sending welcome messages", userId)
 					welcomeTplVars := &storage.WelcomeMsgTplVars{
 						UserId:   userId,
 						Hostname: globalVars.Hostname,
@@ -84,27 +86,10 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 						log.Print(err)
 						continue
 					}
-					log.Printf("User %s: sending welcome messages", userId)
-					for _, welcomeMsg := range welcomeMsgs {
-						// check if the message is a video one
-						isVideoMsg, _ := regexp.MatchString(".*.mp4", welcomeMsg)
-						if isVideoMsg {
-							vidMsgRegex := regexp.MustCompile("\\|")
-							vidAndPreview := vidMsgRegex.Split(welcomeMsg, -1)
-							if len(vidAndPreview) != 2 {
-								log.Printf("Unexpected video message format. Got: \"%s\"", welcomeMsg)
-								continue
-							}
-							if _, err := bot.PushMessage(userId, linebot.NewVideoMessage(vidAndPreview[0], vidAndPreview[1])).Do(); err != nil {
-								log.Print(err)
-								continue
-							}
-						} else {
-							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
-								log.Print(err)
-								continue
-							}
-						}
+					err = sendWelcomeMsgs(welcomeMsgs, userId, bot)
+					if err != nil {
+						log.Print(err)
+						continue
 					}
 				}
 			}
@@ -117,6 +102,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 						log.Print(err)
 						break
 					}
+
 				case *linebot.TextMessage:
 					answer, err := surv.RecordAnswer(userId, message.Text, "line")
 					if err != nil {
@@ -145,4 +131,26 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 		}
 		return nil
 	}
+}
+
+func sendWelcomeMsgs(welcomeMsgs []string, userId string, bot *linebot.Client) error {
+	for _, welcomeMsg := range welcomeMsgs {
+		// check if the message is a video one
+		isVideoMsg, _ := regexp.MatchString(".*.mp4", welcomeMsg)
+		if isVideoMsg {
+			vidMsgRegex := regexp.MustCompile("\\|")
+			vidAndPreview := vidMsgRegex.Split(welcomeMsg, -1)
+			if len(vidAndPreview) != 2 {
+				return errors.New(fmt.Sprintf("Unexpected video message format. Got: \"%s\"", welcomeMsg))
+			}
+			if _, err := bot.PushMessage(userId, linebot.NewVideoMessage(vidAndPreview[0], vidAndPreview[1])).Do(); err != nil {
+				return err
+			}
+		} else {
+			if _, err := bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
