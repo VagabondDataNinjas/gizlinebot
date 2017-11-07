@@ -36,7 +36,7 @@ var startCmd = &cobra.Command{
 		errc := make(chan error)
 		initiator := survey.NewInitiator(surv, s, bot, globalVars)
 		go func() {
-			initiator.Monitor(120, errc)
+			initiator.Monitor(2*24*3600, errc)
 		}()
 
 		apiConf := &http.ApiConf{
