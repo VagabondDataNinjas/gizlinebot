@@ -403,16 +403,48 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 	return nil
 }
 
-func (s *Sql) GetPriceTplMsg() (string, error) {
-	var tplStr string
+type WebSurveyBtnConfig struct {
+	Title string
+	Text  string
+	Label string
+}
+
+func (s *Sql) GetWebSurveyBtnConfig() (WebSurveyBtnConfig, error) {
+	cfg := WebSurveyBtnConfig{}
+	title, err := s.GetConfigVal("web_survey_btn_title")
+	if err != nil {
+		return cfg, err
+	}
+	text, err := s.GetConfigVal("web_survey_btn_text")
+	if err != nil {
+		return cfg, err
+	}
+	label, err := s.GetConfigVal("web_survey_btn_label")
+	if err != nil {
+		return cfg, err
+	}
+
+	return WebSurveyBtnConfig{
+		Title: title,
+		Text:  text,
+		Label: label,
+	}, nil
+}
+
+func (s *Sql) GetConfigVal(key string) (string, error) {
+	var val string
 	err := s.Db.QueryRow(`
 		SELECT value FROM config WHERE k = ?
-	`, "price_tpl").Scan(&tplStr)
+	`, key).Scan(&val)
 	if err != nil {
 		return "", err
 	}
 
-	return tplStr, nil
+	return val, nil
+}
+
+func (s *Sql) GetPriceTplMsg() (string, error) {
+	return s.GetConfigVal("price_tpl")
 }
 
 func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {

@@ -20,7 +20,13 @@ import (
 func LineImgHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		filename := c.Param("filename")
-		size, err := strconv.Atoi(c.Param("size"))
+		filepath := "../line_imgs/" + filename
+		sizeParam := c.Param("size")
+		if sizeParam == "" {
+			return c.File(filepath)
+		}
+
+		size, err := strconv.Atoi(sizeParam)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -31,7 +37,6 @@ func LineImgHandler() func(c echo.Context) error {
 			return errors.Errorf("Invalid extension '%s' in filename '%s'", ext, filename)
 		}
 
-		filepath := "../line_imgs/" + filename
 		reader, err := os.Open(filepath)
 		if err != nil {
 			log.Error(err)

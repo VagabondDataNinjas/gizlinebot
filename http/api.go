@@ -78,6 +78,7 @@ func (a *Api) Serve() error {
 	e.GET("/api/user/prices/:userid", PriceHandler(a.Storage), NoCacheMW) // @TODO remove
 
 	// lineimgs/groots.png/700
+	e.GET("/lineimgs/:filename", LineImgHandler(), NoCacheMW)
 	e.GET("/lineimgs/:filename/:size", LineImgHandler(), NoCacheMW)
 
 	e.GET("/api/islands", IslandsHandler(a.Storage), NoCacheMW)

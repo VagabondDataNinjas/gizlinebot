@@ -85,16 +85,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 					}
 				} else {
 					log.Infof("User %s: sending welcome messages", userId)
-					welcomeTplVars := &storage.WelcomeMsgTplVars{
-						UserId:   userId,
-						Hostname: globalVars.Hostname,
-					}
-					welcomeMsgs, err := s.GetWelcomeMsgs(welcomeTplVars)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					err = sendWelcomeMsgs(welcomeMsgs, userId, bot)
+					err = sendWelcomeMsgs(userId, bot, s, globalVars)
 					if err != nil {
 						log.Error(err)
 						continue
@@ -152,7 +143,16 @@ func onUnfollow(userId string, s *storage.Sql) error {
 	return s.UpdateUserProfile(p)
 }
 
-func sendWelcomeMsgs(welcomeMsgs []string, userId string, bot *linebot.Client) error {
+func sendWelcomeMsgs(userId string, bot *linebot.Client, s *storage.Sql, globalVars *domain.GlobalTplVars) error {
+	welcomeTplVars := &storage.WelcomeMsgTplVars{
+		UserId:   userId,
+		Hostname: globalVars.Hostname,
+	}
+	welcomeMsgs, err := s.GetWelcomeMsgs(welcomeTplVars)
+	if err != nil {
+		return err
+	}
+
 	for _, welcomeMsg := range welcomeMsgs {
 		// check if the message is a video one
 		isVideoMsg, _ := regexp.MatchString(".*.mp4", welcomeMsg)
@@ -168,13 +168,29 @@ func sendWelcomeMsgs(welcomeMsgs []string, userId string, bot *linebot.Client) e
 			continue
 		}
 
-		// check if the message is a video one
+		// check if the message is a button one
 		isWebSurveyBtn, _ := regexp.MatchString("web-survey-btn", welcomeMsg)
 		if isWebSurveyBtn {
-
-			//
+			cfg, err := s.GetWebSurveyBtnConfig()
+			if err != nil {
+				return err
+			}
+			surveyUrl := globalVars.Hostname + "/?uid=" + userId
+			surveyImgPath := globalVars.Hostname + "/lineimgs/groots.png"
+			log.Infof("Image path: %s", surveyImgPath)
+			action := linebot.NewURITemplateAction(cfg.Label, surveyUrl)
+			buttonTemplate := linebot.NewButtonsTemplate(surveyImgPath, cfg.Title, cfg.Text, action)
+			altText := cfg.Title
+			if altText == "" {
+				altText = "Groots"
+			}
+			buttonMsg := linebot.NewTemplateMessage(altText, buttonTemplate)
+			if _, err = bot.PushMessage(userId, buttonMsg).Do(); err != nil {
+				return err
+			}
 			continue
 		}
+
 		if _, err := bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
 			return err
 		}
