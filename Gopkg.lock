@@ -14,6 +14,12 @@
   version = "v3.1.0"
 
 [[projects]]
+  name = "github.com/disintegration/imaging"
+  packages = ["."]
+  revision = "dd50a3ee9985ccd313a2f03c398fcaedc96dc707"
+  version = "v1.2.4"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
@@ -72,12 +78,6 @@
   packages = ["."]
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/mitchellh/go-homedir"
-  packages = ["."]
-  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
   branch = "master"
@@ -165,6 +165,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/image"
+  packages = ["bmp","tiff","tiff/lzw"]
+  revision = "f7e31b4ea2e3413ab91b4e7d2dc83e5f8d19a44c"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
   revision = "01c190206fbdffa42f334f4b2bf2220f50e64920"
@@ -190,6 +196,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ac035c3a398d23bb7fd296b5354851703049c2ccb8cf2aa726c0e0ca63e848f1"
+  inputs-digest = "ecd41b4fa58d78bdff9c47f2ee271fbc9c473256a7c55ea8f131cbcfe637cc19"
   solver-name = "gps-cdcl"
   solver-version = 1
