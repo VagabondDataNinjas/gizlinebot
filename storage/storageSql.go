@@ -473,7 +473,7 @@ func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err
 		return lp, err
 	}
 
-	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 300.0, 3)
+	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 99999999.0, 3)
 }
 
 func (s *Sql) findLocation(locName string) (domain.Location, error) {
