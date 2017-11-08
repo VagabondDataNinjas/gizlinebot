@@ -1,14 +1,13 @@
 package survey
 
 import (
-	"fmt"
-	"log"
 	"time"
 
-	"github.com/VagabondDataNinjas/gizlinebot/domain"
-
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
 )
 
 type Initiator struct {
@@ -31,8 +30,7 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 	for c := time.Tick(5 * time.Second); ; <-c {
 		userIds, err := i.Storage.GetUsersWithoutAnswers(delay)
 		if err != nil {
-			// @TODO log
-			fmt.Printf("\nError pooling for answers: %s", err)
+			log.Errorf("Error pooling for answers: %s", err)
 			errc <- err
 			continue
 		}
@@ -48,20 +46,20 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 			}
 			question, err := i.Survey.GetNextQuestion(userId, questionVars)
 			if err != nil {
-				log.Print(err)
+				log.Error(err)
 				continue
 			}
 			if _, err = i.Bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
-				log.Print(err)
+				log.Error(err)
 				continue
 			}
 
 			if err = i.Storage.MarkProfileBotSurveyInited(userId); err != nil {
-				log.Print(err)
+				log.Error(err)
 				continue
 			}
 
 		}
-		fmt.Printf("\nUserIds: %+v", userIds)
+		log.Infof("Sending linebot survey to users: %+v", userIds)
 	}
 }

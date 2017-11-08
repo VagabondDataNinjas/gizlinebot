@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/gommon/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/labstack/echo"

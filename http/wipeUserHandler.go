@@ -2,13 +2,13 @@ package http
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
-	"github.com/line/line-bot-sdk-go/linebot"
-
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
 )
 
 func WipeUserHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(c echo.Context) error {
@@ -31,7 +31,7 @@ func WipeUserHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(c e
 		lineMsg := linebot.NewTextMessage("Successfully removed your profile and content. Block and add me again to start another test.")
 		if _, err := lineBot.PushMessage(userId, lineMsg).Do(); err != nil {
 			warn := fmt.Sprintf("Got error when seding msg to %s: %s", userId, err)
-			log.Print(warn)
+			log.Error(warn)
 			warnings = append(warnings, warn)
 		}
 

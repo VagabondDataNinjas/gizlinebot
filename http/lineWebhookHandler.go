@@ -4,16 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 
-	"github.com/VagabondDataNinjas/gizlinebot/domain"
-
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
 
+	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
-	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *linebot.Client, globalVars *domain.GlobalTplVars) func(c echo.Context) error {
@@ -37,58 +36,58 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 
 			eventString, err := json.Marshal(event)
 			if err != nil {
-				log.Printf("[err] Could not marshal event: %+v; err: %s", event, err)
+				log.Errorf("Could not marshal event: %+v; err: %s", event, err)
 			} else {
 				err = s.AddRawLineEvent(string(event.Type), string(eventString))
 				if err != nil {
-					log.Printf("[err] Could not store event: %+v; err: %s", event, err)
+					log.Errorf("Could not store event: %+v; err: %s", event, err)
 				}
 			}
 
 			if event.Type == linebot.EventTypeFollow {
-				log.Printf("User %s follow event", userId)
+				log.Info("User %s follow event", userId)
 				userProfileResp, err := bot.GetProfile(userId).Do()
 				if err != nil {
-					log.Print(err)
+					log.Error(err)
 					continue
 				}
 
 				err = s.AddUserProfile(userProfileResp.UserID, userProfileResp.DisplayName)
 				if err != nil {
-					fmt.Printf("AddUserProfile err: %s\n", err)
+					log.Errorf("AddUserProfile err: %s\n", err)
 					continue
 				}
 
 				hasAnswers, err := s.UserHasAnswers(userId)
 				if err != nil {
-					log.Print(err)
+					log.Error(err)
 					continue
 				}
 
 				if hasAnswers {
 					question, err := surv.GetNextQuestion(userId, questionTplVars)
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						continue
 					}
 					if _, err = bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
-						log.Print(err)
+						log.Error(err)
 						continue
 					}
 				} else {
-					log.Printf("User %s: sending welcome messages", userId)
+					log.Infof("User %s: sending welcome messages", userId)
 					welcomeTplVars := &storage.WelcomeMsgTplVars{
 						UserId:   userId,
 						Hostname: globalVars.Hostname,
 					}
 					welcomeMsgs, err := s.GetWelcomeMsgs(welcomeTplVars)
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						continue
 					}
 					err = sendWelcomeMsgs(welcomeMsgs, userId, bot)
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						continue
 					}
 				}
@@ -99,32 +98,32 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 				case *linebot.LocationMessage:
 					err = surv.RecordGpsAnswer(userId, message.Latitude, message.Longitude, message.Address, "line")
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						break
 					}
 
 				case *linebot.TextMessage:
 					answer, err := surv.RecordAnswer(userId, message.Text, "line")
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						break
 					}
 
 					if answer.QuestionId == "price" {
 						err = sendPriceList(bot, s, userId)
 						if err != nil {
-							log.Print(err)
+							log.Error(err)
 						}
 					}
 
 					question, err := surv.GetNextQuestion(userId, questionTplVars)
 					if err != nil {
-						log.Print(err)
+						log.Error(err)
 						break
 					}
 
 					if _, err = bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
-						log.Print(err)
+						log.Error(err)
 					}
 				}
 			}

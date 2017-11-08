@@ -3,14 +3,14 @@ package http
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 
-	"github.com/VagabondDataNinjas/gizlinebot/storage"
-	"github.com/line/line-bot-sdk-go/linebot"
-
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/VagabondDataNinjas/gizlinebot/storage"
 )
 
 type SendLineMsgRequest struct {
@@ -54,7 +54,7 @@ func SendLineMsgHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(
 				lineMsg := linebot.NewTextMessage(buf.String())
 				if _, err := lineBot.PushMessage(userId, lineMsg).Do(); err != nil {
 					warn := fmt.Sprintf("Got error when seding msg to %s: %s", userId, err)
-					log.Print(warn)
+					log.Error(warn)
 					warnings = append(warnings, warn)
 					continue
 				}
