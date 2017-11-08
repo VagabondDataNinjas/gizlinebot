@@ -101,9 +101,12 @@ func checkErr(err error) {
 }
 
 func cfgPort() int {
-	port, err := strconv.Atoi(cfgStr("PORT"))
+	return cfgInt("PORT")
+}
+func cfgInt(key string) int {
+	val, err := strconv.Atoi(cfgStr(key))
 	checkErr(err)
-	return port
+	return val
 }
 
 func cfgStr(key string) string {

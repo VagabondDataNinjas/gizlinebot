@@ -34,10 +34,11 @@ var startCmd = &cobra.Command{
 			Hostname: cfgStr("HOSTNAME"),
 		}
 
+		initiatorDelay := int64(cfgInt("INITIATOR_DELAY_SEC"))
 		errc := make(chan error)
 		initiator := survey.NewInitiator(surv, s, bot, globalVars)
 		go func() {
-			initiator.Monitor(2*24*3600, errc)
+			initiator.Monitor(initiatorDelay, errc)
 		}()
 
 		apiConf := &http.ApiConf{
