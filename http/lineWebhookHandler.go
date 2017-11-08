@@ -165,10 +165,18 @@ func sendWelcomeMsgs(welcomeMsgs []string, userId string, bot *linebot.Client) e
 			if _, err := bot.PushMessage(userId, linebot.NewVideoMessage(vidAndPreview[0], vidAndPreview[1])).Do(); err != nil {
 				return err
 			}
-		} else {
-			if _, err := bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
-				return err
-			}
+			continue
+		}
+
+		// check if the message is a video one
+		isWebSurveyBtn, _ := regexp.MatchString("web-survey-btn", welcomeMsg)
+		if isWebSurveyBtn {
+
+			//
+			continue
+		}
+		if _, err := bot.PushMessage(userId, linebot.NewTextMessage(welcomeMsg)).Do(); err != nil {
+			return err
 		}
 	}
 	return nil
