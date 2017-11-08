@@ -154,9 +154,16 @@ func (s *Sql) GetUserProfile(userId string) (domain.UserProfile, error) {
 }
 
 func (s *Sql) UserHasAnswers(userId string) (bool, error) {
+	profile, err := s.GetUserProfile(userId)
+	if err != nil {
+		return false, err
+	}
+
 	var hasAnswers int
-	err := s.Db.QueryRow(`SELECT count(id) FROM answers
-		WHERE userId = ?`, userId).Scan(&hasAnswers)
+	// select answers that have been added after the last
+	// block/unblock action
+	err = s.Db.QueryRow(`SELECT count(id) FROM answers
+		WHERE userId = ? AND timestamp > ?`, userId, profile.Timestamp).Scan(&hasAnswers)
 	if err != nil {
 		return false, err
 	}
@@ -168,28 +175,24 @@ func (s *Sql) UserHasAnswers(userId string) (bool, error) {
 }
 
 func (s *Sql) UserGetLastAnswer(uid string) (domain.Answer, error) {
-	var id uint
-	var userId string
-	var questionId string
-	var answer string
-	var timestamp int64
-	err := s.Db.QueryRow(`SELECT id, userId, questionId, answer, timestamp FROM answers
-		WHERE userId = ? AND answer != ""
-		ORDER BY timestamp DESC
-		LIMIT 0,1
-		`, uid).Scan(&id, &userId, &questionId, &answer, &timestamp)
+	a := domain.Answer{}
+	var ts int64
+	profile, err := s.GetUserProfile(uid)
 	if err != nil {
-		var emptyAnswer domain.Answer
-		return emptyAnswer, err
+		return a, err
 	}
 
-	return domain.Answer{
-		Id:         id,
-		UserId:     userId,
-		QuestionId: questionId,
-		Answer:     answer,
-		Timestamp:  time.Unix(timestamp, 0),
-	}, nil
+	err = s.Db.QueryRow(`SELECT id, userId, questionId, answer, timestamp FROM answers
+		WHERE userId = ? AND answer != "" AND timestamp > ?
+		ORDER BY timestamp DESC
+		LIMIT 0,1
+		`, uid, profile.Timestamp).Scan(&a.Id, &a.UserId, &a.QuestionId, &a.Answer, &ts)
+	if err != nil {
+		return a, err
+	}
+
+	a.Timestamp = time.Unix(ts, 0)
+	return a, nil
 }
 
 func (s *Sql) GetQuestions() (qs *domain.Questions, err error) {
@@ -404,9 +407,10 @@ func (s *Sql) UserAddAnswer(answer domain.Answer) error {
 }
 
 type WebSurveyBtnConfig struct {
-	Title string
-	Text  string
-	Label string
+	Title     string
+	Text      string
+	Label     string
+	ImageName string
 }
 
 func (s *Sql) GetWebSurveyBtnConfig() (WebSurveyBtnConfig, error) {
@@ -423,11 +427,16 @@ func (s *Sql) GetWebSurveyBtnConfig() (WebSurveyBtnConfig, error) {
 	if err != nil {
 		return cfg, err
 	}
+	filename, err := s.GetConfigVal("web_survey_btn_imgname")
+	if err != nil {
+		return cfg, err
+	}
 
 	return WebSurveyBtnConfig{
-		Title: title,
-		Text:  text,
-		Label: label,
+		Title:     title,
+		Text:      text,
+		Label:     label,
+		ImageName: filename,
 	}, nil
 }
 
