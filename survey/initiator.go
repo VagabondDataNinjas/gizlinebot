@@ -12,12 +12,12 @@ import (
 
 type Initiator struct {
 	Bot        *linebot.Client
-	Storage    storage.Storage
+	Storage    *storage.Sql
 	Survey     *Survey
 	GlobalVars *domain.GlobalTplVars
 }
 
-func NewInitiator(surv *Survey, s storage.Storage, bot *linebot.Client, globalVars *domain.GlobalTplVars) *Initiator {
+func NewInitiator(surv *Survey, s *storage.Sql, bot *linebot.Client, globalVars *domain.GlobalTplVars) *Initiator {
 	return &Initiator{
 		Bot:        bot,
 		Storage:    s,

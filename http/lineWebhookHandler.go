@@ -15,7 +15,7 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
 )
 
-func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *linebot.Client, globalVars *domain.GlobalTplVars) func(c echo.Context) error {
+func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot.Client, globalVars *domain.GlobalTplVars) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		events, err := bot.ParseRequest(c.Request())
 		if err != nil {
@@ -42,6 +42,10 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s storage.Storage, bot *line
 				if err != nil {
 					log.Errorf("Could not store event: %+v; err: %s", event, err)
 				}
+			}
+
+			if event.Type == linebot.EventTypeUnfollow {
+				log.Info("User %s unfollow event", userId)
 			}
 
 			if event.Type == linebot.EventTypeFollow {

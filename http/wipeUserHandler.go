@@ -11,7 +11,7 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 )
 
-func WipeUserHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(c echo.Context) error {
+func WipeUserHandlerBuilder(s * storage.Sql, lineBot *linebot.Client) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		userId := c.Param("userid")
 		if userId == "" {

@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func IslandsHandler(s storage.Storage) func(c echo.Context) error {
+func IslandsHandler(s * storage.Sql) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		locs, err := s.GetLocations()
 		if err != nil {

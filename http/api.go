@@ -26,13 +26,13 @@ type ApiConf struct {
 }
 
 type Api struct {
-	Storage storage.Storage
+	Storage *storage.Sql
 	LineBot *linebot.Client
 	Surv    *survey.Survey
 	Conf    *ApiConf
 }
 
-func NewApi(s storage.Storage, lb *linebot.Client, surv *survey.Survey, conf *ApiConf) *Api {
+func NewApi(s *storage.Sql, lb *linebot.Client, surv *survey.Survey, conf *ApiConf) *Api {
 	return &Api{
 		Storage: s,
 		LineBot: lb,
@@ -91,7 +91,7 @@ func (a *Api) Serve() error {
 	return nil
 }
 
-func PriceHandler(s storage.Storage) func(c echo.Context) error {
+func PriceHandler(s *storage.Sql) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		userId := c.Param("userid")
 		lp, err := s.GetUserNearbyPrices(userId)
@@ -105,7 +105,7 @@ func PriceHandler(s storage.Storage) func(c echo.Context) error {
 	}
 }
 
-func sendPriceList(bot *linebot.Client, s storage.Storage, userId string) error {
+func sendPriceList(bot *linebot.Client, s *storage.Sql, userId string) error {
 	lp, err := s.GetUserNearbyPrices(userId)
 	if err != nil {
 		return err

@@ -22,7 +22,7 @@ type MsgVars struct {
 	UserId string
 }
 
-func SendLineMsgHandlerBuilder(s storage.Storage, lineBot *linebot.Client) func(c echo.Context) error {
+func SendLineMsgHandlerBuilder(s * storage.Sql, lineBot *linebot.Client) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(SendLineMsgRequest)
 

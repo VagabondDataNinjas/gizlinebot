@@ -14,11 +14,11 @@ type QuestionTemplateVars struct {
 }
 
 type Survey struct {
-	Storage   storage.Storage
+	Storage   *storage.Sql
 	Questions *domain.Questions
 }
 
-func NewSurvey(storage storage.Storage, questions *domain.Questions) (survey *Survey) {
+func NewSurvey(storage *storage.Sql, questions *domain.Questions) (survey *Survey) {
 	return &Survey{
 		Storage:   storage,
 		Questions: questions,

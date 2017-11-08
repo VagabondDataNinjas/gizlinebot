@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func DownloadHandlerBuilder(s storage.Storage) func(e echo.Context) error {
+func DownloadHandlerBuilder(s * storage.Sql) func(e echo.Context) error {
 	return func(c echo.Context) error {
 		c.Response().Header().Set(echo.HeaderContentType, "text/csv")
 		c.Response().Header().Set("Content-Description", "File Transfer")

@@ -18,7 +18,7 @@ type AnswerGpsItem struct {
 	Lon float64 `json:"lon"`
 }
 
-func AnswerGpsHandlerBuilder(s storage.Storage) func(c echo.Context) error {
+func AnswerGpsHandlerBuilder(s * storage.Sql) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(AnswersGpsRequest)
 

@@ -23,7 +23,7 @@ type AnswerItem struct {
 	Answer     string `json:"answer"`
 }
 
-func AnswerHandlerBuilder(s storage.Storage, bot *linebot.Client) func(c echo.Context) error {
+func AnswerHandlerBuilder(s * storage.Sql, bot *linebot.Client) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(AnswersRequest)
 
