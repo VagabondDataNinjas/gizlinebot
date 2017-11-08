@@ -6,6 +6,7 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/VagabondDataNinjas/gizlinebot/survey"
 	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -44,6 +45,7 @@ var startCmd = &cobra.Command{
 			GlobalVars: globalVars,
 		}
 		api := http.NewApi(s, bot, surv, apiConf)
+		log.Info("Starting the API...")
 		checkErr(api.Serve())
 	},
 }

@@ -11,3 +11,8 @@ GIZLB_LINE_TOKEN=""
 # used as {{.Hostname}} variable in templated vars
 GIZLB_HOSTNAME="https://7c44107f.ngrok.io"
 PORT="8888"
+
+# Papertrail integration
+GIZLB_PTRAIL_PORT=""
+GIZLB_PTRAIL_HOST=""
+GIZLB_PTRAIL_APP=""

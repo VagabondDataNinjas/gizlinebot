@@ -6,6 +6,9 @@ import (
 	"os"
 	"strconv"
 
+	logrus_papertrail "github.com/polds/logrus-papertrail-hook"
+	log "github.com/sirupsen/logrus"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,7 +30,7 @@ var RootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }
@@ -70,12 +73,40 @@ func initConfig() {
 	// If a config file is found, read it in.
 	err := viper.ReadInConfig()
 	checkErr(err)
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	log.Infof("Using conf file: %s", viper.ConfigFileUsed())
+
+	err = setupPapertrailLogging(cfgStr("PTRAIL_PORT"), cfgStr("PTRAIL_HOST"), cfgStr("PTRAIL_APP"))
+	checkErr(err)
+}
+
+func setupPapertrailLogging(portStr, hostname, name string) error {
+	if portStr == "" || hostname == "" || name == "" {
+		log.Info("Skipping papertrail setup (missing PTRAIL_* vars)")
+		return nil
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return err
+	}
+	hook, err := logrus_papertrail.NewPapertrailHook(&logrus_papertrail.Hook{
+		Host:     "logs6.papertrailapp.com",
+		Port:     port,
+		Hostname: hostname,
+		Appname:  name,
+	})
+	if err != nil {
+		return err
+	}
+
+	hook.SetLevels([]log.Level{log.ErrorLevel, log.WarnLevel, log.InfoLevel, log.DebugLevel})
+
+	log.AddHook(hook)
+	return nil
 }
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Printf("\nError: %s\n", err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }

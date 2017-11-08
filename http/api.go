@@ -7,6 +7,8 @@ import (
 	"text/template"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
+	logrusmiddleware "github.com/andreiashu/echo-logrusmiddleware"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 
@@ -50,7 +52,8 @@ func NoCacheMW(next echo.HandlerFunc) echo.HandlerFunc {
 func (a *Api) Serve() error {
 	e := echo.New()
 	// Middleware
-	e.Use(middleware.Logger())
+	e.Logger = logrusmiddleware.Logger{log.StandardLogger()}
+	e.Use(logrusmiddleware.Hook())
 	e.Use(middleware.Recover())
 	// CORS default
 	// Allows requests from any origin wth GET, HEAD, PUT, POST or DELETE method.
@@ -84,7 +87,7 @@ func (a *Api) Serve() error {
 
 	e.GET("/api/admin/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
+	log.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
 	return nil
 }
 
