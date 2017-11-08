@@ -176,9 +176,15 @@ func sendWelcomeMsgs(userId string, bot *linebot.Client, s *storage.Sql, globalV
 				return err
 			}
 			surveyUrl := globalVars.Hostname + "/?uid=" + userId
-			surveyImgPath := globalVars.Hostname + "/lineimgs/" + cfg.ImageName
 			action := linebot.NewURITemplateAction(cfg.Label, surveyUrl)
-			buttonTemplate := linebot.NewButtonsTemplate(surveyImgPath, cfg.Title, cfg.Text, action)
+			buttonTemplate := &linebot.ButtonsTemplate{
+				Title:   cfg.Title,
+				Text:    cfg.Text,
+				Actions: []linebot.TemplateAction{action},
+			}
+			if len(cfg.ImageName) > 0 {
+				buttonTemplate.ThumbnailImageURL = globalVars.Hostname + "/lineimgs/" + cfg.ImageName
+			}
 			altText := cfg.Title
 			if altText == "" {
 				altText = "Groots"

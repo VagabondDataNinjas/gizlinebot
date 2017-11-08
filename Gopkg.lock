@@ -58,8 +58,7 @@
 [[projects]]
   name = "github.com/line/line-bot-sdk-go"
   packages = ["linebot"]
-  revision = "3a7d66f5efce6ac202f650134609f9d6d163a640"
-  version = "1.0.0"
+  revision = "fb9a499c0290cb8d7af072d1067967d9e808dcbc"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -161,7 +160,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","ssh/terminal"]
-  revision = "687d4b818545e443c8ba223cbef20b1721afd4db"
+  revision = "6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd"
 
 [[projects]]
   branch = "master"
@@ -173,13 +172,13 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
-  revision = "01c190206fbdffa42f334f4b2bf2220f50e64920"
+  revision = "a337091b0525af65de94df2eb7e98bd9962dcbe2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows"]
-  revision = "d4266bc12aae0b4128952c889b769442fce5d2f1"
+  revision = "bcc62b628abe70dd6bee1f06c4e31630209cd8d7"
 
 [[projects]]
   branch = "master"
@@ -196,6 +195,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ecd41b4fa58d78bdff9c47f2ee271fbc9c473256a7c55ea8f131cbcfe637cc19"
+  inputs-digest = "69f29e1bd1873b4c59d3300e0e80b9963737778e8e85bfcc9b80b8dda551410f"
   solver-name = "gps-cdcl"
   solver-version = 1
