@@ -45,30 +45,35 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 			}
 
 			if event.Type == linebot.EventTypeUnfollow {
-				log.Info("User %s unfollow event", userId)
+				err = onUnfollow(userId, s)
+				log.Infof("Unfollow event: %s", userId)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
 			}
 
 			if event.Type == linebot.EventTypeFollow {
-				log.Info("User %s follow event", userId)
+				log.Infof("Follow event: %s", userId)
 				userProfileResp, err := bot.GetProfile(userId).Do()
 				if err != nil {
 					log.Error(err)
 					continue
 				}
 
-				err = s.AddUserProfile(userProfileResp.UserID, userProfileResp.DisplayName)
+				err = s.AddUpdateUserProfile(userProfileResp.UserID, userProfileResp.DisplayName)
 				if err != nil {
-					log.Errorf("AddUserProfile err: %s\n", err)
+					log.Errorf("AddUpdateUserProfile err: %s", err)
 					continue
 				}
 
-				hasAnswers, err := s.UserHasAnswers(userId)
+				profile, err := s.GetUserProfile(userId)
 				if err != nil {
 					log.Error(err)
 					continue
 				}
 
-				if hasAnswers {
+				if profile.SurveyStarted {
 					question, err := surv.GetNextQuestion(userId, questionTplVars)
 					if err != nil {
 						log.Error(err)
@@ -134,6 +139,17 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 		}
 		return nil
 	}
+}
+
+func onUnfollow(userId string, s *storage.Sql) error {
+	p, err := s.GetUserProfile(userId)
+	if err != nil {
+		return err
+	}
+
+	p.Active = false
+	p.SurveyStarted = false
+	return s.UpdateUserProfile(p)
 }
 
 func sendWelcomeMsgs(welcomeMsgs []string, userId string, bot *linebot.Client) error {

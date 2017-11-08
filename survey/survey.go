@@ -51,7 +51,12 @@ func (s *Survey) getNextQuestionRaw(userId string) (question *domain.Question, e
 		return question, err
 	}
 
-	if !has {
+	profile, err := s.Storage.GetUserProfile(userId)
+	if err != nil {
+		return question, err
+	}
+
+	if !profile.SurveyStarted || !has {
 		return s.Questions.At(0)
 	}
 

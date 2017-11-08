@@ -46,15 +46,19 @@ func (s *Sql) AddRawLineEvent(eventType, rawevent string) error {
 	return nil
 }
 
-// AddUserProfile adds a user profile
+// AddUpdateUserProfile adds a user profile
 // if the user already exists in the table this method does nothing
-func (s *Sql) AddUserProfile(userID, displayName string) error {
-	stmt, err := s.Db.Prepare("INSERT INTO user_profiles(userId, displayName, timestamp) VALUES(?, ?, ?)")
+func (s *Sql) AddUpdateUserProfile(userID, displayName string) error {
+	stmt, err := s.Db.Prepare(`INSERT INTO
+		user_profiles(userId, displayName, timestamp, active) VALUES(?, ?, ?, 1)
+		ON DUPLICATE KEY UPDATE displayName = ?, timestamp = ?, active = 1
+	`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(userID, displayName, int32(time.Now().UTC().Unix()))
+	ts := int32(time.Now().UTC().Unix())
+	_, err = stmt.Exec(userID, displayName, ts, displayName, ts)
 
 	if err != nil {
 		if mysqlErr := err.(*mysql.MySQLError); mysqlErr.Number == 1062 {
@@ -67,13 +71,14 @@ func (s *Sql) AddUserProfile(userID, displayName string) error {
 	return nil
 }
 
-func (s *Sql) MarkProfileBotSurveyInited(userId string) error {
-	stmt, err := s.Db.Prepare("UPDATE user_profiles SET bot_survey_inited = 1 WHERE userId = ?")
+func (s *Sql) UpdateUserProfile(p domain.UserProfile) error {
+	stmt, err := s.Db.Prepare(`UPDATE user_profiles
+		SET displayName = ?, timestamp = ?, active = ?, bot_survey_inited = ? WHERE userId = ?`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(userId)
+	_, err = stmt.Exec(p.DisplayName, p.Timestamp, p.Active, p.SurveyStarted, p.UserId)
 
 	if err != nil {
 		return err
@@ -82,15 +87,29 @@ func (s *Sql) MarkProfileBotSurveyInited(userId string) error {
 	return nil
 }
 
-func (s *Sql) GetUsersWithoutAnswers(delaySecs int64) (userIds []string, err error) {
+func (s *Sql) MarkProfileBotSurveyInited(userId string, inited int) error {
+	stmt, err := s.Db.Prepare("UPDATE user_profiles SET bot_survey_inited = ? WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(inited, userId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Sql) UsersSurveyNotStarted(delaySecs int64) (userIds []string, err error) {
 	var (
 		userId string
 	)
 
 	tsCompare := time.Now().UTC().Unix() - delaySecs
 	rows, err := s.Db.Query(`SELECT p.userId FROM user_profiles p
-		LEFT JOIN answers a ON a.userId = p.userId
-		WHERE a.userId IS NULL AND p.bot_survey_inited = 0 AND p.timestamp < ?`, tsCompare)
+		WHERE p.active = 1 AND p.bot_survey_inited = 0 AND p.timestamp < ?`, tsCompare)
 	if err != nil {
 		return userIds, err
 	}
@@ -113,25 +132,20 @@ func (s *Sql) GetUsersWithoutAnswers(delaySecs int64) (userIds []string, err err
 	return userIds, nil
 }
 
-func (s *Sql) GetUserProfile(userId string) (profile domain.UserProfile, err error) {
-	var (
-		displayName string
-		timestamp   int
-	)
-	err = s.Db.QueryRow(`SELECT displayName, timestamp
-		FROM user_profiles where userId = ?`, userId).Scan(&displayName, &timestamp)
+func (s *Sql) GetUserProfile(userId string) (domain.UserProfile, error) {
+	p := domain.UserProfile{
+		UserId: userId,
+	}
+	err := s.Db.QueryRow(`SELECT displayName, timestamp, active, IF(bot_survey_inited = 1, TRUE, FALSE) AS SurveyStarted
+		FROM user_profiles where userId = ?`, userId).Scan(&p.DisplayName, &p.Timestamp, &p.Active, &p.SurveyStarted)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return profile, nil
+			return p, nil
 		}
-		return profile, err
+		return p, err
 	}
 
-	return domain.UserProfile{
-		UserId:      userId,
-		DisplayName: displayName,
-		Timestamp:   timestamp,
-	}, nil
+	return p, nil
 }
 
 func (s *Sql) UserHasAnswers(userId string) (bool, error) {

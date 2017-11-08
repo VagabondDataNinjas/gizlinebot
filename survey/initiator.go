@@ -28,7 +28,7 @@ func NewInitiator(surv *Survey, s *storage.Sql, bot *linebot.Client, globalVars 
 
 func (i *Initiator) Monitor(delay int64, errc chan error) {
 	for c := time.Tick(5 * time.Second); ; <-c {
-		userIds, err := i.Storage.GetUsersWithoutAnswers(delay)
+		userIds, err := i.Storage.UsersSurveyNotStarted(delay)
 		if err != nil {
 			log.Errorf("Error pooling for answers: %s", err)
 			errc <- err
@@ -49,17 +49,16 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 				log.Error(err)
 				continue
 			}
+			log.Infof("Sending linebot survey to user: %s", userId)
 			if _, err = i.Bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
 				log.Error(err)
 				continue
 			}
 
-			if err = i.Storage.MarkProfileBotSurveyInited(userId); err != nil {
+			if err = i.Storage.MarkProfileBotSurveyInited(userId, 1); err != nil {
 				log.Error(err)
 				continue
 			}
-
 		}
-		log.Infof("Sending linebot survey to users: %+v", userIds)
 	}
 }
