@@ -16,3 +16,7 @@ PORT="8888"
 GIZLB_PTRAIL_PORT=""
 GIZLB_PTRAIL_HOST=""
 GIZLB_PTRAIL_APP=""
+
+# how long to wait (in seconds) before sending a linebot survey message
+# to a user who hasn't started the web survey
+GIZLB_INITIATOR_DELAY_SEC="120"

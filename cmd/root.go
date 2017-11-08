@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 
 	logrus_papertrail "github.com/polds/logrus-papertrail-hook"
 	log "github.com/sirupsen/logrus"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -54,17 +52,8 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name ".gizlinebot" (without extension).
-
 		viper.SetConfigType("toml")
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(".")
 		viper.SetConfigName(".gizlinebot")
 	}
 

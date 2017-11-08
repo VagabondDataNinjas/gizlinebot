@@ -18,3 +18,5 @@ vendor/
 # ignore compiled binary main.go file
 main
 dist
+
+.gizlinebot.toml
