@@ -87,13 +87,18 @@ func (s *Sql) UpdateUserProfile(p domain.UserProfile) error {
 	return nil
 }
 
-func (s *Sql) MarkProfileBotSurveyInited(userId string, inited int) error {
+func (s *Sql) ToggleUserSurvey(userId string, started bool) error {
 	stmt, err := s.Db.Prepare("UPDATE user_profiles SET bot_survey_inited = ? WHERE userId = ?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(inited, userId)
+
+	startedInt := 0
+	if started {
+		startedInt = 1
+	}
+	_, err = stmt.Exec(startedInt, userId)
 
 	if err != nil {
 		return err

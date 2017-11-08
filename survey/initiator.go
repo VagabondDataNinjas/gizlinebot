@@ -55,7 +55,7 @@ func (i *Initiator) Monitor(delay int64, errc chan error) {
 				continue
 			}
 
-			if err = i.Storage.MarkProfileBotSurveyInited(userId, 1); err != nil {
+			if err = i.Storage.ToggleUserSurvey(userId, true); err != nil {
 				log.Error(err)
 				continue
 			}

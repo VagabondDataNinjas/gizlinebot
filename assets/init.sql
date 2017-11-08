@@ -78,7 +78,6 @@ VALUES
 	(1, 'Hello, thanks for becoming friend with me. My name is Groots. I’m collecting diesel price on Thai islands. Learn more about who I am, why I need the diesel price and how it will benefit your island here', -4, 'line'),
 	(4, '{{.Hostname}}/media/groots_th.mp4|{{.Hostname}}/media/groots.png', -3, 'line'),
 	(3, 'Let’s start sharing me the information here {{.Hostname}}/?uid={{.UserId}}', 0, 'line'),
-	(7, '** Only in test env: {{.Hostname}}/api/user/wipe/{{.UserId}} **', 1, 'line');
 
 CREATE TABLE `pricepoints` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

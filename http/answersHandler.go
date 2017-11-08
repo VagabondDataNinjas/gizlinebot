@@ -1,16 +1,14 @@
 package http
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
-
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
-
-	"github.com/labstack/echo"
 )
 
 type AnswersRequest struct {
@@ -23,7 +21,7 @@ type AnswerItem struct {
 	Answer     string `json:"answer"`
 }
 
-func AnswerHandlerBuilder(s * storage.Sql, bot *linebot.Client) func(c echo.Context) error {
+func AnswerHandlerBuilder(s *storage.Sql, bot *linebot.Client) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		payload := new(AnswersRequest)
 
@@ -42,13 +40,16 @@ func AnswerHandlerBuilder(s * storage.Sql, bot *linebot.Client) func(c echo.Cont
 			return c.JSON(http.StatusBadRequest, map[string]string{"status": "error", "reason": "user_id not found"})
 		}
 
+		if !profile.SurveyStarted {
+			s.ToggleUserSurvey(profile.UserId, true)
+		}
 		// @TODO check that the question_ids exist in the questions table
 
 		for _, answer := range payload.Answers {
 			if answer.QuestionId == "price" {
 				err = sendPriceList(bot, s, profile.UserId)
 				if err != nil {
-					log.Print(err)
+					log.Errorf("Error sending prices to user: %s - %s", profile.UserId, err)
 				}
 			}
 
