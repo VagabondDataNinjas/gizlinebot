@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -51,6 +52,14 @@ func AnswerHandlerBuilder(s *storage.Sql, bot *linebot.Client) func(c echo.Conte
 				if err != nil {
 					log.Errorf("Error sending prices to user: %s - %s", profile.UserId, err)
 				}
+
+				go func(bot *linebot.Client, s *storage.Sql, userId string) {
+					time.Sleep(5 * time.Second)
+					err = sendThankYouMsg(bot, s, profile.UserId)
+					if err != nil {
+						log.Errorf("Error sending thank you msg to user: %s - %s", profile.UserId, err)
+					}
+				}(bot, s, profile.UserId)
 			}
 
 			err := s.UserAddAnswer(domain.Answer{

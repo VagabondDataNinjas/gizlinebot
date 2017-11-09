@@ -152,3 +152,23 @@ func sendPriceList(bot *linebot.Client, s *storage.Sql, userId string) error {
 
 	return nil
 }
+
+func sendThankYouMsg(bot *linebot.Client, s *storage.Sql, userId string) error {
+	questions, err := s.GetQuestions()
+	if err != nil {
+		log.Errorf("Error getting questions: %s", err)
+		return err
+	}
+
+	lastQ, err := questions.Last()
+	if err != nil {
+		log.Errorf("Error getting last question: %s", err)
+		return err
+	}
+
+	if _, err = bot.PushMessage(userId, linebot.NewTextMessage(lastQ.Text)).Do(); err != nil {
+		log.Errorf("Error sending last thankyou / question: %s", err)
+		return err
+	}
+	return nil
+}
