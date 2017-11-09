@@ -509,7 +509,7 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 	rows, err := s.Db.Query(`SELECT name,
 		id, latitude, longitude, price
 		FROM (
-				SELECT l.id, l.name AS name,
+				SELECT l.id, l.thainame AS name,
 					l.latitude, l.longitude, AVG(pp.price) AS price,
 					p.radius,
 					p.distance_unit

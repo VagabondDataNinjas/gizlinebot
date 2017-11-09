@@ -115,53 +115,39 @@ func sendPriceList(bot *linebot.Client, s *storage.Sql, userId string) error {
 		return err
 	}
 
-	tplStr, err := s.GetPriceTplMsg()
-	if err != nil {
-		return err
-	}
-	tmpl, err := template.New("priceMsg").Parse(tplStr)
-	if err != nil {
-		return err
-	}
-
-	type TplVars struct {
-		Location string
-		Price    float64
-	}
-
-	// @TODO check empty list of lp
-	var msg string
-	for _, loc := range lp {
-		buf := new(bytes.Buffer)
-		tplVars := TplVars{loc.Name, loc.Price}
-		err = tmpl.Execute(buf, tplVars)
+	if len(lp) > 0 {
+		tplStr, err := s.GetPriceTplMsg()
+		if err != nil {
+			return err
+		}
+		tmpl, err := template.New("priceMsg").Parse(tplStr)
 		if err != nil {
 			return err
 		}
 
-		msg += buf.String()
-		msg += "\n"
-	}
+		type TplVars struct {
+			Location string
+			Price    float64
+		}
 
-	if _, err = bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
-		return err
-	}
+		var msg string
+		for _, loc := range lp {
+			buf := new(bytes.Buffer)
+			tplVars := TplVars{loc.Name, loc.Price}
+			err = tmpl.Execute(buf, tplVars)
+			if err != nil {
+				return err
+			}
 
-	questions, err := s.GetQuestions()
-	if err != nil {
-		log.Errorf("Error getting questions: %s", err)
-		return err
-	}
+			msg += buf.String()
+			msg += "\n"
+		}
 
-	lastQ, err := questions.Last()
-	if err != nil {
-		log.Errorf("Error getting last question: %s", err)
-		return err
-	}
-
-	if _, err = bot.PushMessage(userId, linebot.NewTextMessage(lastQ.Text)).Do(); err != nil {
-		log.Errorf("Error sending last thankyou / question: %s", err)
-		return err
+		if _, err = bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
+			return err
+		}
+	} else {
+		log.Infof("No prices found for user %s", userId)
 	}
 
 	return nil
