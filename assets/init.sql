@@ -60,10 +60,10 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question`, `weight`, `channel`)
 VALUES
-	('island', 'What is the name of the island where you live?', -8, 'both'),
-	('job', 'What is your occupation?', -9, 'both'),
-	('price', 'How much for a litre of diesel do you sell or buy on the island?', -5, 'both'),
-	('thank_you', 'Thanks again for sharing the information with me. I want to reach as many people from as many islands as possible. Please help by sending me to your Line friends simply by \n-Click “v” on top right of this page\n-Click “Recommend”\n-Select friends from your and other islands and click “OK”!\n\nI’ll come back for price update and will share back a more accurate price from other islands next time!', 0, 'both');
+	('island', 'คุณอาศัยอยู่ที่เกาะอะไร', -8, 'both'),
+	('job', 'คุณเป็นใคร?', -9, 'both'),
+	('price', 'น้ำมันดีเซล (โซลาร์) บนเกาะของคุณราคาลิตรละกี่บาท (ราคาที่ขายหรือซื้อจากร้านค้าหรือตัวแทนบนเกาะ)', -5, 'both'),
+	('thank_you', 'ขอบคุณอีกครั้งที่ช่วยแบ่งปันข้อมูลให้เรา เพื่อให้ได้ข้อมูลที่แม่นยำที่สุดเราอยากเข้าถึงคนที่อยู่บนเกาะต่างๆให้ได้จำนวนมากที่สุด โปรดช่วยส่งต่อบัญชีไลน์นี้ไปให้เพื่อนคนอื่นๆในไลน์ของคุณด้วยวิธีง่ายๆเพียง\nคลิก “v” ตรงมุมขวาบนของหน้านี้\nคลิก “แนะนำ”\nเลือกเพื่อนของคุณที่อยู่บนเกาะเดียวกันนี้หรือบนเกาะอื่นและคลิก “ตกลง”\n\nเราจะส่งข้อมูลกลับมาให้คุณอีกเร็วๆนี้และจะแชร์ราคาจากเกาะอื่นที่แม่นยำมากขึ้นกลับมาให้ในครั้งต่อไป! ยิ่งคุณแนะนำกรู๊ดส์ต่อไปให้คนอื่นมากเท่าไหร่ ข้อมูลที่จะส่งกลับมาให้คุณก็จะยิ่งดีขึ้น!', 0, 'both');
 
 CREATE TABLE `welcome_msgs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -71,13 +71,13 @@ CREATE TABLE `welcome_msgs` (
   `weight` int(11) NOT NULL,
   `channel` varchar(10) NOT NULL DEFAULT '' COMMENT '"both", "web" or "line"',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 INSERT INTO `welcome_msgs` (`id`, `msg`, `weight`, `channel`)
 VALUES
-	(1, 'Hello, thanks for becoming friend with me. My name is Groots. I’m collecting diesel price on Thai islands. Learn more about who I am, why I need the diesel price and how it will benefit your island here', -4, 'line'),
-	(4, '{{.Hostname}}/media/groots_th.mp4|{{.Hostname}}/media/groots.png', -3, 'line'),
-	(3, 'Let’s start sharing me the information here {{.Hostname}}/?uid={{.UserId}}', 0, 'line'),
+	(1, 'สวัสดี ขอบคุณที่เพิ่มฉันเป็นเพื่อน! โครงการกรู๊ดส์กำลังรวบรวมข้อมูลราคาน้ำมันดีเซล (โซลาร์) จากคนบนเกาะในประเทศไทย ลองมาดูกันว่าเราอยากรู้ราคาน้ำมันไปทำอะไรและจะเป็นประโยชน์กับคุณและเกาะของคุณอย่างไรในวิดีโอสั้น ๆ นี้กันเลย', -4, 'line'),
+	(3, 'web-survey-btn', 0, 'line'),
+	(4, '{{.Hostname}}/media/groots_th.mp4|{{.Hostname}}/media/groots_frame.png', -3, 'line');
 
 CREATE TABLE `pricepoints` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -109,7 +109,11 @@ CREATE TABLE `config` (
 
 INSERT INTO `config` (`id`, `k`, `value`)
 VALUES
-	(1, 'price_tpl', 'A litre of diesel on {{.Location}} costs {{.Price}} Baht');
+	(1, 'price_tpl', 'น้ำมันดีเซล (โซลาร์) บนเกาะ {{.Location}} ราคาลิตรละ {{.Price}} บาท'),
+	(2, 'web_survey_btn_title', ''),
+	(3, 'web_survey_btn_text', 'เริ่มแบ่งปันข้อมูลกัน'),
+	(4, 'web_survey_btn_label', 'เริ่ม'),
+	(5, 'web_survey_btn_imgname', '');
 
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
