@@ -3,8 +3,11 @@ package storage
 import (
 	"bytes"
 	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
@@ -602,4 +605,100 @@ func (s *Sql) UserAddGpsAnswer(answer domain.AnswerGps) error {
 	}
 
 	return nil
+}
+
+func (s *Sql) GetLastNormalisedPriceAnswerId() (answerId int, err error) {
+	count, err := s.countNormalisedPrices()
+	if err != nil {
+		return answerId, err
+	}
+
+	if count == 0 {
+		return 0, nil
+	}
+
+	err = s.Db.QueryRow(`SELECT answerId FROM normalised_prices
+		ORDER BY timestamp DESC LIMIT 0,1
+		`).Scan(&answerId)
+	if err != nil {
+		return answerId, err
+	}
+
+	return answerId, nil
+}
+
+func (s *Sql) countNormalisedPrices() (count int, err error) {
+	err = s.Db.QueryRow(`SELECT count(answerId) FROM normalised_prices`).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+// NormalisePrices will go through all Price answers and
+// returns answerId - last successfully normalised answerId
+func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
+	rows, err := s.Db.Query("SELECT id, userId, answer, channel, timestamp FROM answers WHERE questionId = 'price' AND id > ?", fromAnswerId)
+	if err != nil {
+		return answerId, err
+	}
+	defer rows.Close()
+
+	var id, timestamp int
+	var userId, answer, channel string
+	for rows.Next() {
+		err := rows.Scan(&id, &userId, &answer, &channel, &timestamp)
+		if err != nil {
+			return answerId, err
+		}
+
+		err = s.storePriceRow(id, userId, answer, channel, timestamp)
+		if err != nil {
+			return answerId, err
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return answerId, err
+	}
+
+	return answerId, nil
+}
+
+func (s *Sql) storePriceRow(id int, userId, answer, channel string, timestamp int) error {
+	price, err := sanitizePrice(answer)
+	if err != nil {
+		// skip invalid prices
+		return nil
+	}
+
+	stmt, err := s.Db.Prepare("INSERT INTO normalised_prices(answerId, userId, price, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, userId, price, channel, timestamp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func sanitizePrice(priceStr string) (price float64, err error) {
+	priceStr = regexp.MustCompile("[^0-9.]+").ReplaceAllString(priceStr, "")
+	priceStr = regexp.MustCompile("^\\.+|\\.+$").ReplaceAllString(priceStr, "")
+
+	if priceStr == "" {
+		return 0.0, errors.New("Could not find digits in price string")
+	}
+
+	f, err := strconv.ParseFloat(priceStr, 64)
+	if err != nil {
+		return 0.0, err
+	}
+
+	return f, nil
 }

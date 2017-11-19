@@ -115,6 +115,28 @@ VALUES
 	(4, 'web_survey_btn_label', 'เริ่ม'),
 	(5, 'web_survey_btn_imgname', '');
 
+-- Normalised prices table
+CREATE TABLE `normalised_prices` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `answerId` int(11) NOT NULL,
+  `userId` varchar(255) NOT NULL DEFAULT '',
+  `price` float NOT NULL,
+  `channel` varchar(10) NOT NULL DEFAULT '',
+  `timestamp` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Normalised islands table
+CREATE TABLE `normalised_islands` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` varchar(255) NOT NULL DEFAULT '',
+  `answerId` int(11) NOT NULL,
+  `island` varchar(255) NOT NULL DEFAULT '',
+  `channel` varchar(10) NOT NULL DEFAULT '',
+  `timestamp` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
