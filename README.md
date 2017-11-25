@@ -60,3 +60,13 @@ Release steps:
 which should be located on the same folder level at ../gizsurvey (path relative to this repo)
 
 The API endpoints are defined in [./http/api.go](./http/api.go)
+
+## Local development
+
+```
+# install realize
+go get -u github.com/tockins/realize
+
+# run and watch the files for changes (config in `.realize` folder)
+realise start
+```
