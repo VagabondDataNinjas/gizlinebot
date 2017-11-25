@@ -3,9 +3,8 @@ package survey
 import (
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
+	"github.com/pkg/errors"
 )
 
 type Normaliser struct {
@@ -20,16 +19,35 @@ func NewNormaliser(storage *storage.Sql) *Normaliser {
 
 func (n *Normaliser) Start(errc chan error) {
 	for c := time.Tick(30 * time.Second); ; <-c {
-		lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedPriceAnswerId()
-		if err != nil {
-			log.Errorf("Error getting last normalised answerd id: %s", err)
-			continue
-		}
+		n.normalisePrices(errc)
+		n.normaliseIslands(errc)
+	}
+}
 
-		_, err = n.Storage.NormalisePrices(lastNormalisedAnswerId)
-		if err != nil {
-			log.Errorf("Error normalising prices: %s", err)
-			continue
-		}
+func (n *Normaliser) normalisePrices(errc chan error) {
+	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedPriceId()
+	if err != nil {
+		errc <- errors.Wrap(err, "Error getting last normalised price id")
+		return
+	}
+
+	_, err = n.Storage.NormalisePrices(lastNormalisedAnswerId)
+	if err != nil {
+		errc <- errors.Wrap(err, "Error normalising prices")
+		return
+	}
+}
+
+func (n *Normaliser) normaliseIslands(errc chan error) {
+	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedIslandId()
+	if err != nil {
+		errc <- errors.Wrap(err, "Error getting last normalised island id: %s")
+		return
+	}
+
+	_, err = n.Storage.NormaliseIslands(lastNormalisedAnswerId)
+	if err != nil {
+		errc <- errors.Wrap(err, "Error normalising islands: %s")
+		return
 	}
 }

@@ -41,6 +41,12 @@ var startCmd = &cobra.Command{
 			initiator.Monitor(initiatorDelay, errc)
 		}()
 
+		normaliser := survey.NewNormaliser(s)
+		go func() {
+			log.Info("Starting data normaliser...")
+			normaliser.Start(errc)
+		}()
+
 		apiConf := &http.ApiConf{
 			Port:       cfgPort(),
 			GlobalVars: globalVars,

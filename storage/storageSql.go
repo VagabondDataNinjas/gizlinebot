@@ -3,12 +3,14 @@ package storage
 import (
 	"bytes"
 	"database/sql"
-	"errors"
 	"fmt"
 	"html/template"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/go-sql-driver/mysql"
@@ -479,14 +481,13 @@ func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err
 	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 99999999.0, 3)
 }
 
-func (s *Sql) findLocation(locName string) (domain.Location, error) {
-	var loc = domain.Location{}
-	err := s.Db.QueryRow(`SELECT id, thainame, latitude, longitude
+func (s *Sql) findLocation(locName string) (loc domain.LocationThai, err error) {
+	err = s.Db.QueryRow(`SELECT id, name, thainame, latitude, longitude
 		FROM locations
 		WHERE (name = ? OR thainame = ?)
 			AND latitude IS NOT NULL AND longitude IS NOT NULL
 		LIMIT 0,1
-		`, locName, locName).Scan(&loc.Id, &loc.Name, &loc.Latitude, &loc.Longitude)
+		`, locName, locName).Scan(&loc.Id, &loc.Name, &loc.NameThai, &loc.Latitude, &loc.Longitude)
 	if err != nil {
 		return loc, err
 	}
@@ -607,28 +608,35 @@ func (s *Sql) UserAddGpsAnswer(answer domain.AnswerGps) error {
 	return nil
 }
 
-func (s *Sql) GetLastNormalisedPriceAnswerId() (answerId int, err error) {
-	count, err := s.countNormalisedPrices()
+func (s *Sql) GetLastNormalisedPriceId() (answerId int, err error) {
+	return s.getLastId("answerId", "normalised_prices", "timestamp")
+}
+
+func (s *Sql) GetLastNormalisedIslandId() (answerId int, err error) {
+	return s.getLastId("answerId", "normalised_islands", "timestamp")
+}
+
+func (s *Sql) getLastId(colName, tableName, orderByCol string) (id int, err error) {
+	count, err := s.countRows(tableName)
 	if err != nil {
-		return answerId, err
+		return id, errors.Wrap(err, "storage.getLastId")
 	}
 
 	if count == 0 {
 		return 0, nil
 	}
 
-	err = s.Db.QueryRow(`SELECT answerId FROM normalised_prices
-		ORDER BY timestamp DESC LIMIT 0,1
-		`).Scan(&answerId)
+	err = s.Db.QueryRow(fmt.Sprintf(`SELECT %s FROM %s
+		ORDER BY %s DESC LIMIT 0,1`, colName, tableName, orderByCol)).Scan(&id)
 	if err != nil {
-		return answerId, err
+		return id, errors.Wrap(err, "storage.getLastId")
 	}
 
-	return answerId, nil
+	return id, nil
 }
 
-func (s *Sql) countNormalisedPrices() (count int, err error) {
-	err = s.Db.QueryRow(`SELECT count(answerId) FROM normalised_prices`).Scan(&count)
+func (s *Sql) countRows(tableName string) (count int, err error) {
+	err = s.Db.QueryRow(fmt.Sprintf("SELECT count(*) FROM %s", tableName)).Scan(&count)
 	if err != nil {
 		return count, err
 	}
@@ -641,7 +649,7 @@ func (s *Sql) countNormalisedPrices() (count int, err error) {
 func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
 	rows, err := s.Db.Query("SELECT id, userId, answer, channel, timestamp FROM answers WHERE questionId = 'price' AND id > ?", fromAnswerId)
 	if err != nil {
-		return answerId, err
+		return answerId, errors.Wrap(err, "storage.NormalisePrices")
 	}
 	defer rows.Close()
 
@@ -650,18 +658,18 @@ func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &userId, &answer, &channel, &timestamp)
 		if err != nil {
-			return answerId, err
+			return answerId, errors.Wrap(err, "storage.NormalisePrices")
 		}
 
 		err = s.storePriceRow(id, userId, answer, channel, timestamp)
 		if err != nil {
-			return answerId, err
+			return answerId, errors.Wrap(err, "storage.NormalisePrices")
 		}
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return answerId, err
+		return answerId, errors.Wrap(err, "storage.NormalisePrices")
 	}
 
 	return answerId, nil
@@ -676,12 +684,12 @@ func (s *Sql) storePriceRow(id int, userId, answer, channel string, timestamp in
 
 	stmt, err := s.Db.Prepare("INSERT INTO normalised_prices(answerId, userId, price, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "storage.storePriceRow")
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(id, userId, price, channel, timestamp)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "storage.storePriceRow")
 	}
 
 	return nil
@@ -701,4 +709,68 @@ func sanitizePrice(priceStr string) (price float64, err error) {
 	}
 
 	return f, nil
+}
+
+func (s *Sql) NormaliseIslands(fromAnswerId int) (answerId int, err error) {
+	rows, err := s.Db.Query("SELECT id, userId, answer, channel, timestamp FROM answers WHERE questionId = 'island' AND id > ?", fromAnswerId)
+	if err != nil {
+		return answerId, errors.Wrap(err, "storage.NormaliseIslands")
+	}
+	defer rows.Close()
+
+	var id, timestamp int
+	var userId, answer, channel string
+	for rows.Next() {
+		err := rows.Scan(&id, &userId, &answer, &channel, &timestamp)
+		if err != nil {
+			return answerId, errors.Wrap(err, "storage.NormaliseIslands")
+		}
+
+		err = s.storeIslandRow(id, userId, answer, channel, timestamp)
+		if err != nil {
+			return answerId, errors.Wrap(err, "storage.NormaliseIslands")
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return answerId, errors.Wrap(err, "storage.NormaliseIslands")
+	}
+
+	return answerId, nil
+}
+
+func (s *Sql) storeIslandRow(id int, userId, answer, channel string, timestamp int) error {
+	island, err := s.normaliseIsland(answer)
+	if err != nil {
+		return errors.Wrap(err, "storage.storeIslandRow")
+	}
+
+	if island.Name == "" {
+		return nil
+	}
+
+	stmt, err := s.Db.Prepare("INSERT INTO normalised_islands(answerId, userId, island, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		return errors.Wrap(err, "storage.storeIslandRow")
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, userId, island.Name, channel, timestamp)
+	if err != nil {
+		return errors.Wrap(err, "storage.storeIslandRow")
+	}
+
+	return nil
+}
+
+func (s *Sql) normaliseIsland(str string) (loc domain.LocationThai, err error) {
+	str = strings.Trim(str, " \t,.")
+	loc, err = s.findLocation(str)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return loc, nil
+		}
+	}
+
+	return loc, err
 }
