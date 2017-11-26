@@ -462,12 +462,12 @@ func (s *Sql) GetPriceTplMsg() (string, error) {
 }
 
 func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {
-	locStr, err := s.userLastLocationAnswer(userId)
+	locStr, err := s.UserLastLocationAnswer(userId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return lp, nil
-		}
 		return lp, err
+	}
+	if locStr == "" {
+		return lp, nil
 	}
 
 	loc, err := s.findLocation(locStr)
@@ -495,7 +495,7 @@ func (s *Sql) findLocation(locName string) (loc domain.LocationThai, err error) 
 	return loc, nil
 }
 
-func (s *Sql) userLastLocationAnswer(userId string) (string, error) {
+func (s *Sql) UserLastLocationAnswer(userId string) (string, error) {
 	var answer string
 	err := s.Db.QueryRow(`SELECT answer FROM answers
 		WHERE questionid = 'island' AND userId = ?
@@ -503,6 +503,10 @@ func (s *Sql) userLastLocationAnswer(userId string) (string, error) {
 		ORDER BY timestamp DESC LIMIT 0,1
 		`, userId).Scan(&answer)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+
 		return "", err
 	}
 

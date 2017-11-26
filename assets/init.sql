@@ -69,7 +69,7 @@ CREATE TABLE `questions_custom` (
   `questionId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Id of the question sent - will be recorded in the answers table',
   `toProfilesUntil` int(11) NOT NULL COMMENT 'This question was sent to all profiles that were created before the sepcified timestamp',
   `text` text NOT NULL COMMENT 'The text that was sent',
-  `replyText` text NOT NULL COMMENT 'Text to send back when a user answers this question',
+  `replyText` text NOT NULL COMMENT 'Text to send back when a user answers this question. Supports template vars: {{.PriceList}}, {{.Location}}',
   `timestamp` int(11) NOT NULL COMMENT 'Timestamp when the question was sent',
   PRIMARY KEY (`questionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

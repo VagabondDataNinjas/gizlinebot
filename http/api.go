@@ -109,47 +109,59 @@ func PriceHandler(s *storage.Sql) func(c echo.Context) error {
 	}
 }
 
-func sendPriceList(bot *linebot.Client, s *storage.Sql, userId string) error {
+func userPriceList(userId string, s *storage.Sql) (priceList string, err error) {
 	lp, err := s.GetUserNearbyPrices(userId)
+	if err != nil {
+		return "", err
+	}
+
+	if len(lp) == 0 {
+		log.Infof("No prices found for user %s", userId)
+		return "", nil
+	}
+
+	tplStr, err := s.GetPriceTplMsg()
+	if err != nil {
+		return "", err
+	}
+	tmpl, err := template.New("priceMsg").Parse(tplStr)
+	if err != nil {
+		return "", err
+	}
+
+	type TplVars struct {
+		Location string
+		Price    float64
+	}
+
+	var msg string
+	for _, loc := range lp {
+		buf := new(bytes.Buffer)
+		tplVars := TplVars{loc.Name, loc.Price}
+		err = tmpl.Execute(buf, tplVars)
+		if err != nil {
+			return "", err
+		}
+
+		msg += buf.String()
+		msg += "\n"
+	}
+
+	return msg, nil
+}
+
+func sendPriceList(bot *linebot.Client, s *storage.Sql, userId string) error {
+	priceList, err := userPriceList(userId, s)
 	if err != nil {
 		return err
 	}
-
-	if len(lp) > 0 {
-		tplStr, err := s.GetPriceTplMsg()
-		if err != nil {
-			return err
-		}
-		tmpl, err := template.New("priceMsg").Parse(tplStr)
-		if err != nil {
-			return err
-		}
-
-		type TplVars struct {
-			Location string
-			Price    float64
-		}
-
-		var msg string
-		for _, loc := range lp {
-			buf := new(bytes.Buffer)
-			tplVars := TplVars{loc.Name, loc.Price}
-			err = tmpl.Execute(buf, tplVars)
-			if err != nil {
-				return err
-			}
-
-			msg += buf.String()
-			msg += "\n"
-		}
-
-		if _, err = bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
-			return err
-		}
-	} else {
-		log.Infof("No prices found for user %s", userId)
+	if priceList == "" {
+		return nil
 	}
 
+	if _, err = bot.PushMessage(userId, linebot.NewTextMessage(priceList)).Do(); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -1,10 +1,12 @@
 package http
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
+	"text/template"
 
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -103,14 +105,14 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 					}
 
 				case *linebot.TextMessage:
-					questionId, replyText, qTs, err := s.CustomQuestion(userId)
+					customQuestionId, replyText, qTs, err := s.CustomQuestion(userId)
 					if err != nil {
 						log.Error(err)
 					}
 					// did this user get a custom question sent?
-					if questionId != "" {
+					if customQuestionId != "" {
 						// have they answered this custom question already?
-						answered, err := s.UserAnsweredCustomQuestion(questionId, qTs)
+						answered, err := s.UserAnsweredCustomQuestion(customQuestionId, qTs)
 						if err != nil {
 							log.Error(err)
 							break
@@ -125,13 +127,19 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 							break
 						}
 
-						if err = surv.RecordAnswerRaw(userId, questionId, message.Text, "line"); err != nil {
+						if err = surv.RecordAnswerRaw(userId, customQuestionId, message.Text, "line"); err != nil {
 							log.Error(err)
 							break
 						}
 
 						if replyText != "" {
-							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(replyText)).Do(); err != nil {
+							replyTextMsg, err := templateCustomQuestionReply(replyText, userId, s)
+							if err != nil {
+								log.Error(err)
+								break
+							}
+
+							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(replyTextMsg)).Do(); err != nil {
 								log.Error(err)
 							}
 						}
@@ -175,6 +183,42 @@ func onUnfollow(userId string, s *storage.Sql) error {
 	p.Active = false
 	p.SurveyStarted = false
 	return s.UpdateUserProfile(p)
+}
+
+func templateCustomQuestionReply(msgTpl, userId string, s *storage.Sql) (msg string, err error) {
+	loc, err := s.UserLastLocationAnswer(userId)
+	if err != nil {
+		return "", err
+	}
+	if loc == "" {
+		return msgTpl, nil
+	}
+
+	priceList, err := userPriceList(userId, s)
+	if err != nil {
+		return "", err
+	}
+
+	tpl, err := template.New("customQuestionReply").Parse(msgTpl)
+	if err != nil {
+		return "", err
+	}
+
+	type TplVars struct {
+		PriceList string
+		Location  string
+	}
+	buf := new(bytes.Buffer)
+	tplVars := TplVars{
+		Location:  loc,
+		PriceList: priceList,
+	}
+	err = tpl.Execute(buf, tplVars)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
 func sendWelcomeMsgs(userId string, bot *linebot.Client, s *storage.Sql, globalVars *domain.GlobalTplVars) error {
