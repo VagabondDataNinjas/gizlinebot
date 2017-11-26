@@ -103,27 +103,61 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 					}
 
 				case *linebot.TextMessage:
-					answer, err := surv.RecordAnswer(userId, message.Text, "line")
+					questionId, replyText, qTs, err := s.CustomQuestion(userId)
 					if err != nil {
 						log.Error(err)
-						break
 					}
-
-					if answer.QuestionId == "price" {
-						err = sendPriceList(bot, s, userId)
+					// did this user get a custom question sent?
+					if questionId != "" {
+						// have they answered this custom question already?
+						answered, err := s.UserAnsweredCustomQuestion(questionId, qTs)
 						if err != nil {
 							log.Error(err)
+							break
 						}
-					}
+						if answered {
+							// if user already answered question record in the answers table with "na" question id
+							if err = surv.RecordAnswerRaw(userId, "na", message.Text, "line"); err != nil {
+								log.Error(err)
+								break
+							}
+							// do not continue
+							break
+						}
 
-					question, err := surv.GetNextQuestion(userId, questionTplVars)
-					if err != nil {
-						log.Error(err)
-						break
-					}
+						if err = surv.RecordAnswerRaw(userId, questionId, message.Text, "line"); err != nil {
+							log.Error(err)
+							break
+						}
 
-					if _, err = bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
-						log.Error(err)
+						if replyText != "" {
+							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(replyText)).Do(); err != nil {
+								log.Error(err)
+							}
+						}
+					} else {
+						answer, err := surv.RecordAnswer(userId, message.Text, "line")
+						if err != nil {
+							log.Error(err)
+							break
+						}
+
+						if answer.QuestionId == "price" {
+							err = sendPriceList(bot, s, userId)
+							if err != nil {
+								log.Error(err)
+							}
+						}
+
+						question, err := surv.GetNextQuestion(userId, questionTplVars)
+						if err != nil {
+							log.Error(err)
+							break
+						}
+
+						if _, err = bot.PushMessage(userId, linebot.NewTextMessage(question.Text)).Do(); err != nil {
+							log.Error(err)
+						}
 					}
 				}
 			}

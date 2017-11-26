@@ -68,6 +68,16 @@ func (s *Survey) getNextQuestionRaw(userId string) (question *domain.Question, e
 	return s.Questions.Next(answer.QuestionId)
 }
 
+func (s *Survey) RecordAnswerRaw(userId, questionId, answerText, channel string) error {
+	answer := domain.Answer{
+		UserId:     userId,
+		QuestionId: questionId,
+		Answer:     answerText,
+		Channel:    channel,
+	}
+	return s.Storage.UserAddAnswer(answer)
+}
+
 func (s *Survey) RecordAnswer(userId, answerText, channel string) (domain.Answer, error) {
 	has, err := s.Storage.UserHasAnswers(userId)
 	if err != nil {
@@ -84,7 +94,9 @@ func (s *Survey) RecordAnswer(userId, answerText, channel string) (domain.Answer
 	if !has {
 		cq, _ := s.Questions.At(0)
 		answer.QuestionId = cq.Id
-		s.Storage.UserAddAnswer(answer)
+		if err = s.Storage.UserAddAnswer(answer); err != nil {
+			return answer, err
+		}
 		return answer, nil
 	}
 
@@ -98,7 +110,9 @@ func (s *Survey) RecordAnswer(userId, answerText, channel string) (domain.Answer
 		// record against a n 'na' question id
 		if err == domain.ErrQuestionsNoNext {
 			answer.QuestionId = "na"
-			s.Storage.UserAddAnswer(answer)
+			if err = s.Storage.UserAddAnswer(answer); err != nil {
+				return answer, err
+			}
 			return answer, nil
 		}
 

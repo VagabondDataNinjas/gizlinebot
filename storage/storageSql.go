@@ -593,6 +593,46 @@ func (s *Sql) deleteFromTableUserId(table string, userId string) error {
 	return nil
 }
 
+func (s *Sql) UserAnsweredCustomQuestion(questionId string, qTs int) (bool, error) {
+	// check whether the user alreay answered this question
+	var aId int
+	err := s.Db.QueryRow(`SELECT id FROM answers
+		WHERE questionId = ? AND timestamp > ? LIMIT 0, 1
+		`, questionId, qTs).Scan(&aId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+// CustomQuestion returns the last question sent based on when the user
+// registered on the website
+func (s *Sql) CustomQuestion(userId string) (questionId string, replyText string, qTs int, err error) {
+	user, err := s.GetUserProfile(userId)
+	if err != nil {
+		return "", "", 0, err
+	}
+
+	err = s.Db.QueryRow(`SELECT questionId, replyText, timestamp FROM questions_custom
+		WHERE toProfilesUntil > ?
+		ORDER BY timestamp DESC
+		LIMIT 0,1
+		`, user.Timestamp).Scan(&questionId, &replyText, &qTs)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", "", 0, nil
+		}
+
+		return "", "", 0, err
+	}
+
+	return questionId, replyText, qTs, nil
+}
+
 func (s *Sql) UserAddGpsAnswer(answer domain.AnswerGps) error {
 	stmt, err := s.Db.Prepare("INSERT INTO answers_gps(userId, lat, lon, address, channel, timestamp) VALUES(?, ?, ?, ?, ?, ?)")
 	if err != nil {

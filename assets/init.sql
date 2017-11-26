@@ -2,7 +2,7 @@ CREATE database if not exists gizsurvey;
 USE gizsurvey;
 
 
-CREATE USER if not exists 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'Mpmc3EzwUU06Pq9hq8T55fEnaN2okglRd5CPS2i4fcA';
+CREATE USER if not exists 'gizlinebot'@'127.0.0.1' IDENTIFIED BY 'changeme';
 GRANT ALL PRIVILEGES ON gizsurvey.* TO 'gizlinebot'@'127.0.0.1';
 FLUSH PRIVILEGES;
 
@@ -64,6 +64,15 @@ VALUES
 	('job', 'คุณเป็นใคร?', -9, 'both'),
 	('price', 'น้ำมันดีเซล (โซลาร์) บนเกาะของคุณราคาลิตรละกี่บาท (ราคาที่ขายหรือซื้อจากร้านค้าหรือตัวแทนบนเกาะ)', -5, 'both'),
 	('thank_you', 'ขอบคุณอีกครั้งที่ช่วยแบ่งปันข้อมูลให้เรา เพื่อให้ได้ข้อมูลที่แม่นยำที่สุดเราอยากเข้าถึงคนที่อยู่บนเกาะต่างๆให้ได้จำนวนมากที่สุด โปรดช่วยส่งต่อบัญชีไลน์นี้ไปให้เพื่อนคนอื่นๆในไลน์ของคุณด้วยวิธีง่ายๆเพียง\nคลิก “v” ตรงมุมขวาบนของหน้านี้\nคลิก “แนะนำ”\nเลือกเพื่อนของคุณที่อยู่บนเกาะเดียวกันนี้หรือบนเกาะอื่นและคลิก “ตกลง”\n\nเราจะส่งข้อมูลกลับมาให้คุณอีกเร็วๆนี้และจะแชร์ราคาจากเกาะอื่นที่แม่นยำมากขึ้นกลับมาให้ในครั้งต่อไป! ยิ่งคุณแนะนำกรู๊ดส์ต่อไปให้คนอื่นมากเท่าไหร่ ข้อมูลที่จะส่งกลับมาให้คุณก็จะยิ่งดีขึ้น!', 0, 'both');
+
+CREATE TABLE `questions_custom` (
+  `questionId` varchar(255) NOT NULL DEFAULT '' COMMENT 'Id of the question sent - will be recorded in the answers table',
+  `toProfilesUntil` int(11) NOT NULL COMMENT 'This question was sent to all profiles that were created before the sepcified timestamp',
+  `text` text NOT NULL COMMENT 'The text that was sent',
+  `replyText` text NOT NULL COMMENT 'Text to send back when a user answers this question',
+  `timestamp` int(11) NOT NULL COMMENT 'Timestamp when the question was sent',
+  PRIMARY KEY (`questionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `welcome_msgs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
