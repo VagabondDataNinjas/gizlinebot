@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func DownloadHandlerBuilder(s * storage.Sql) func(e echo.Context) error {
+func DownloadHandlerBuilder(s *storage.Sql) func(e echo.Context) error {
 	return func(c echo.Context) error {
 		c.Response().Header().Set(echo.HeaderContentType, "text/csv")
 		c.Response().Header().Set("Content-Description", "File Transfer")
@@ -93,18 +93,4 @@ func DownloadHandlerBuilder(s * storage.Sql) func(e echo.Context) error {
 		}
 		return respWFlushRow(csvRow, csvW, c, b)
 	}
-}
-
-func respWFlushRow(csvRow []string, csvW *csv.Writer, c echo.Context, b *bytes.Buffer) error {
-	if err := csvW.Write(csvRow); err != nil {
-		return err
-	}
-	csvW.Flush()
-	if _, err := c.Response().Write(b.Bytes()); err != nil {
-		return err
-	}
-
-	c.Response().Flush()
-	b.Reset()
-	return nil
 }

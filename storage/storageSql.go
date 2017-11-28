@@ -51,6 +51,38 @@ func (s *Sql) AddRawLineEvent(eventType, rawevent string) error {
 	return nil
 }
 
+func (s *Sql) GetRawLineEvents() (evts []domain.LineEventExport, err error) {
+	rows, err := s.Db.Query(`
+		SELECT rawUserId, IFNULL(u.displayName, ""), r.eventtype, FROM_UNIXTIME(r.timestamp) as eventTime  FROM (
+			SELECT id, eventtype, TRIM(BOTH '"' FROM IFNULL(JSON_EXTRACT(rawevent, "$.Source.userId"), JSON_EXTRACT(rawevent, "$.source.userId"))) AS rawUserId, timestamp
+			FROM linebot_raw_events
+		) as r
+		LEFT JOIN user_profiles u
+		ON u.userId = r.rawUserId
+	`)
+	if err != nil {
+		return evts, err
+	}
+	defer rows.Close()
+
+	evt := domain.LineEventExport{}
+	evts = make([]domain.LineEventExport, 0)
+	for rows.Next() {
+		err := rows.Scan(&evt.UserId, &evt.DisplayName, &evt.EventType, &evt.EventTime)
+		if err != nil {
+			return evts, err
+		}
+		evts = append(evts, evt)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return evts, err
+	}
+
+	return evts, nil
+}
+
 // AddUpdateUserProfile adds a user profile
 // if the user already exists in the table this method does nothing
 func (s *Sql) AddUpdateUserProfile(userID, displayName string) error {

@@ -90,6 +90,7 @@ func (a *Api) Serve() error {
 	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
 
 	e.GET("/api/admin/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
+	e.GET("/api/admin/download/lineevents.csv", LineEventsDownloadHandlerBuilder(a.Storage), NoCacheMW)
 
 	log.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
 	return nil
