@@ -15,6 +15,8 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/domain"
 	"github.com/go-sql-driver/mysql"
 
+	log "github.com/sirupsen/logrus"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -521,23 +523,28 @@ func (s *Sql) GetPriceTplMsg() (string, error) {
 	return s.GetConfigVal("price_tpl")
 }
 
-func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {
+func (s *Sql) findUserLocation(userId string) (l domain.LocationThai, err error) {
 	locStr, err := s.UserLastLocationAnswer(userId)
 	if err != nil {
-		return lp, err
+		return l, err
 	}
 	if locStr == "" {
-		return lp, nil
+		return l, nil
 	}
 
 	loc, err := s.findLocation(locStr)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return lp, nil
+			return l, nil
 		}
-		return lp, err
+		return l, err
 	}
 
+	return loc, nil
+}
+
+func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {
+	loc, err := s.findUserLocation(userId)
 	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 99999999.0, 3)
 }
 
@@ -588,8 +595,8 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 										* SIN(RADIANS(l.latitude)))
 					) AS distance
 				FROM locations AS l
-				INNER JOIN pricepoints pp
-					ON pp.location_id = l.id
+				INNER JOIN normalised_prices pp
+					ON pp.locationId = l.id
 				JOIN (   /* these are the query parameters */
 						SELECT ? AS latpoint, ? AS longpoint,
 										? AS radius, 111.045 AS distance_unit
@@ -619,6 +626,7 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 		if err != nil {
 			return locs, err
 		}
+		lp.Price = round(lp.Price, 0.05)
 		locs = append(locs, lp)
 	}
 
@@ -628,6 +636,11 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 	}
 
 	return locs, nil
+}
+
+// @see https://stackoverflow.com/questions/39544571/golang-round-to-nearest-0-05
+func round(x, unit float64) float64 {
+	return float64(int64(x/unit+0.5)) * unit
 }
 
 func (s *Sql) WipeUser(userId string) error {
@@ -780,7 +793,16 @@ func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
 			return answerId, errors.Wrap(err, "storage.NormalisePrices")
 		}
 
-		err = s.storePriceRow(id, userId, answer, channel, timestamp)
+		location, err := s.findUserLocation(userId)
+		if err != nil {
+			log.Errorf("Error finding location for userID %s: %s", userId, err)
+			continue
+		}
+		if location.Name == "" {
+			continue
+		}
+
+		err = s.storePriceRow(id, userId, answer, location.Id, channel, timestamp)
 		if err != nil {
 			return answerId, errors.Wrap(err, "storage.NormalisePrices")
 		}
@@ -794,19 +816,25 @@ func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
 	return answerId, nil
 }
 
-func (s *Sql) storePriceRow(id int, userId, answer, channel string, timestamp int) error {
+func (s *Sql) storePriceRow(id int, userId, answer string, locationId uint64, channel string, timestamp int) error {
 	price, err := sanitizePrice(answer)
 	if err != nil {
 		// skip invalid prices
 		return nil
 	}
 
-	stmt, err := s.Db.Prepare("INSERT INTO normalised_prices(answerId, userId, price, channel, timestamp) VALUES(?, ?, ?, ?, ?)")
+	if price < 20.0 || price > 50.0 {
+		return nil
+	}
+
+	stmt, err := s.Db.Prepare(`INSERT INTO normalised_prices
+		(answerId, userId, price, locationId, channel, timestamp)
+		VALUES(?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return errors.Wrap(err, "storage.storePriceRow")
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(id, userId, price, channel, timestamp)
+	_, err = stmt.Exec(id, userId, price, locationId, channel, timestamp)
 	if err != nil {
 		return errors.Wrap(err, "storage.storePriceRow")
 	}

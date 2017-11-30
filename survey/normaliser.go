@@ -5,6 +5,7 @@ import (
 
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 type Normaliser struct {
@@ -25,6 +26,7 @@ func (n *Normaliser) Start(errc chan error) {
 }
 
 func (n *Normaliser) normalisePrices(errc chan error) {
+	log.Info("Normalising prices")
 	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedPriceId()
 	if err != nil {
 		errc <- errors.Wrap(err, "Error getting last normalised price id")
@@ -33,21 +35,23 @@ func (n *Normaliser) normalisePrices(errc chan error) {
 
 	_, err = n.Storage.NormalisePrices(lastNormalisedAnswerId)
 	if err != nil {
+		log.Errorf("Got error while normalising prices %s", err)
 		errc <- errors.Wrap(err, "Error normalising prices")
 		return
 	}
 }
 
 func (n *Normaliser) normaliseIslands(errc chan error) {
+	log.Info("Normalising Islands")
 	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedIslandId()
 	if err != nil {
-		errc <- errors.Wrap(err, "Error getting last normalised island id: %s")
+		errc <- errors.Wrap(err, "Error getting last normalised island id")
 		return
 	}
 
 	_, err = n.Storage.NormaliseIslands(lastNormalisedAnswerId)
 	if err != nil {
-		errc <- errors.Wrap(err, "Error normalising islands: %s")
+		errc <- errors.Wrap(err, "Error normalising islands")
 		return
 	}
 }
