@@ -52,8 +52,14 @@ var startCmd = &cobra.Command{
 			GlobalVars: globalVars,
 		}
 		api := http.NewApi(s, bot, surv, apiConf)
-		log.Info("Starting the API...")
-		checkErr(api.Serve())
+		go func() {
+			log.Info("Starting the API...")
+			checkErr(api.Serve())
+		}()
+
+		for err := range errc {
+			log.Error(err)
+		}
 	},
 }
 
