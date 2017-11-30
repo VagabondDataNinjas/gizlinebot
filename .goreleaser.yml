@@ -13,21 +13,3 @@ archive:
     amd64: 64-bit
     darwin: macOS
     linux: Tux
-
-brew:
-  # Reporitory to push the tap to.
-  github:
-    owner: VagabondDataNinjas
-    name: homebrew-tap
-
-  # Folder inside the repository to put the formula.
-  # Default is the root folder.
-  folder: Formula
-
-  # Your app's homepage.
-  # Default is empty.
-  homepage: "https://github.com/VagabondDataNinjas/gizlinebot"
-
-  # Your app's description.
-  # Default is empty.
-  description: "Linebot for GIZ."
