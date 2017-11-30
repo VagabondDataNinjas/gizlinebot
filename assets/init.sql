@@ -71,7 +71,6 @@ CREATE TABLE `questions_custom` (
   `text` text NOT NULL COMMENT 'The text that was sent',
   `replyText` text NOT NULL COMMENT 'Text to send back when a user answers this question. Supports template vars: {{.PriceList}}, {{.Location}}',
   `timestamp` int(11) NOT NULL COMMENT 'Timestamp when the question was sent',
-  PRIMARY KEY (`questionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `welcome_msgs` (

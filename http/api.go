@@ -88,6 +88,7 @@ func (a *Api) Serve() error {
 
 	// @TODO add authentication
 	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
+	e.POST("/api/admin/send/custom/question", SendLineCustomQuestionHandlerBuilder(a.Storage, a.LineBot))
 
 	e.GET("/api/admin/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
 	e.GET("/api/admin/download/lineevents.csv", LineEventsDownloadHandlerBuilder(a.Storage), NoCacheMW)

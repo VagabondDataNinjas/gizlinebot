@@ -174,6 +174,34 @@ func (s *Sql) UsersSurveyNotStarted(delaySecs int64) (userIds []string, err erro
 	return userIds, nil
 }
 
+func (s *Sql) GetAllActiveUserProfiles() (profiles []domain.UserProfile, err error) {
+	rows, err := s.Db.Query(`SELECT userId, displayName, timestamp, IF(bot_survey_inited = 1, TRUE, FALSE) AS SurveyStarted
+		FROM user_profiles WHERE
+		bot_survey_inited = 1 AND active = 1
+		ORDER BY timestamp ASC`)
+	if err != nil {
+		return profiles, err
+	}
+	defer rows.Close()
+
+	profiles = make([]domain.UserProfile, 0)
+	for rows.Next() {
+		profile := domain.UserProfile{}
+		err := rows.Scan(&profile.UserId, &profile.DisplayName, &profile.Timestamp, &profile.SurveyStarted)
+		if err != nil {
+			return profiles, err
+		}
+		profiles = append(profiles, profile)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return profiles, err
+	}
+
+	return profiles, nil
+}
+
 func (s *Sql) GetUserProfile(userId string) (domain.UserProfile, error) {
 	p := domain.UserProfile{
 		UserId: userId,
@@ -643,6 +671,21 @@ func (s *Sql) UserAnsweredCustomQuestion(questionId string, qTs int) (bool, erro
 	}
 
 	return true, nil
+}
+
+func (s *Sql) AddCustomQuestion(questionId string, text string, replyText string) error {
+	stmt, err := s.Db.Prepare("INSERT INTO questions_custom(questionId, toProfilesUntil, text, replyText, timestamp) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(questionId, int32(time.Now().UTC().Unix()), text, replyText, int32(time.Now().UTC().Unix()))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // CustomQuestion returns the last question sent based on when the user
