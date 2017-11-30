@@ -9,7 +9,8 @@
 		"76d967d5-fc38-cca0-f223-d5552b2355bb",
 		"839964ee-9678-9354-6f7d-3e3ed150e17f",
 		"b189c19b-c371-15d1-bb93-d12a8fa656df",
-		"6b7544ee-cfd4-580e-e331-1d473d031158"
+		"6b7544ee-cfd4-580e-e331-1d473d031158",
+		"7b817808-e56a-b091-c36b-6a8d8c59c18e"
 	],
 	"folders": [],
 	"timestamp": 1508953296270,
@@ -75,6 +76,25 @@
 			"tests": null,
 			"currentHelper": "normal",
 			"helperAttributes": {}
+		},
+		{
+			"id": "7b817808-e56a-b091-c36b-6a8d8c59c18e",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:8888/api/admin/send/custom/question",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1512032306893,
+			"name": "/api/admin/send/custom/question",
+			"description": "",
+			"collectionId": "705187f2-b4e2-aa82-019f-5b3b55ccbec1",
+			"responses": [],
+			"rawModeData": "{\n    \"question_id\": \"price\",\n    \"text\": \"Hi there {{.DisplayName}} we'd like to know what is the latest price you pay for diesel on {{.Location}}\",\n    \"reply_text\": \"Thank you! here is a list of prices on islands nearby {{.Location}}:\\n{{.PriceList}}\"\n}"
 		},
 		{
 			"id": "839964ee-9678-9354-6f7d-3e3ed150e17f",
