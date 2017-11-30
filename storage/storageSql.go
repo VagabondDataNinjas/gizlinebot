@@ -626,7 +626,7 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 		if err != nil {
 			return locs, err
 		}
-		lp.Price = round(lp.Price, 0.05)
+		lp.Price = round(lp.Price)
 		locs = append(locs, lp)
 	}
 
@@ -639,8 +639,9 @@ func (s *Sql) getNearbyLocations(lat, lon, radius float64, limit int) (locs []do
 }
 
 // @see https://stackoverflow.com/questions/39544571/golang-round-to-nearest-0-05
-func round(x, unit float64) float64 {
-	return float64(int64(x/unit+0.5)) * unit
+func round(x float64) float64 {
+	f, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", x), 64)
+	return f
 }
 
 func (s *Sql) WipeUser(userId string) error {

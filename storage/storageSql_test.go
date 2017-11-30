@@ -4,6 +4,30 @@ import (
 	"testing"
 )
 
+func TestRound(t *testing.T) {
+	var data = []struct {
+		input    float64
+		expected float64
+	}{
+		{5 / 3.0, 1.67},
+		{-5 / 3.0, -1.67},
+		{16.888, 16.89},
+		{16.11, 16.11},
+		{0.1212, 0.12},
+		{0.016, 0.02},
+		{0.0155, 0.02},
+		{0.015, 0.01},
+		{0.0, 0.0},
+		{16.000000099, 16.00},
+	}
+	for _, item := range data {
+		price := round(item.input)
+		if price != item.expected {
+			t.Errorf("Unexpected \"%.2f\", expected \"%.2f\"", price, item.expected)
+		}
+	}
+
+}
 func TestSanitizePrice(t *testing.T) {
 	var data = []struct {
 		input       string
