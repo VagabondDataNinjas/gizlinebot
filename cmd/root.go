@@ -62,6 +62,10 @@ func initConfig() {
 	// If a config file is found, read it in.
 	err := viper.ReadInConfig()
 	checkErr(err)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+		ForceColors:   true,
+	})
 	log.Infof("Using conf file: %s", viper.ConfigFileUsed())
 
 	err = setupPapertrailLogging(cfgStr("PTRAIL_PORT"), cfgStr("PTRAIL_HOST"), cfgStr("PTRAIL_APP"))

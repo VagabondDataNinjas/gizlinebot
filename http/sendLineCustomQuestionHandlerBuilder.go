@@ -52,9 +52,15 @@ func SendLineCustomQuestionHandlerBuilder(s *storage.Sql, lineBot *linebot.Clien
 			}
 
 			lineMsg := linebot.NewTextMessage(msgStr)
+			logfields := log.Fields{
+				"DisplayName": profile.DisplayName,
+				"UserId":      profile.UserId,
+				"QuestionId":  pyld.QuestionId,
+			}
+			log.WithFields(logfields).Info("Sending custom question to line")
 			if _, err := lineBot.PushMessage(profile.UserId, lineMsg).Do(); err != nil {
 				warn := fmt.Sprintf("Got error when seding msg to %s: %s", profile.UserId, err)
-				log.Error(warn)
+				log.WithFields(logfields).Error(warn)
 				warnings = append(warnings, warn)
 				continue
 			}
