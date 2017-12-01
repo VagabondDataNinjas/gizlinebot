@@ -73,7 +73,7 @@ func SendLineCustomQuestionHandlerBuilder(s *storage.Sql, lineBot *linebot.Clien
 }
 
 func templateCustomQuestion(msgTpl string, userProfile domain.UserProfile, s *storage.Sql) (msg string, err error) {
-	loc, err := s.UserLastLocationAnswer(userProfile.UserId)
+	loc, err := s.FindUserLocation(userProfile.UserId)
 	if err != nil {
 		return "", err
 	}
@@ -89,7 +89,7 @@ func templateCustomQuestion(msgTpl string, userProfile domain.UserProfile, s *st
 	}
 	buf := new(bytes.Buffer)
 	tplVars := TplVars{
-		Location:    loc,
+		Location:    loc.NameThai,
 		DisplayName: userProfile.DisplayName,
 	}
 	err = tpl.Execute(buf, tplVars)

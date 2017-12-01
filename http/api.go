@@ -118,7 +118,7 @@ func userPriceList(userId string, s *storage.Sql) (priceList string, err error) 
 	}
 
 	if len(lp) == 0 {
-		log.Infof("No prices found for user %s", userId)
+		log.Warnf("No prices found for user %s", userId)
 		return "", nil
 	}
 

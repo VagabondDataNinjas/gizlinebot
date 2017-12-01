@@ -523,7 +523,7 @@ func (s *Sql) GetPriceTplMsg() (string, error) {
 	return s.GetConfigVal("price_tpl")
 }
 
-func (s *Sql) findUserLocation(userId string) (l domain.LocationThai, err error) {
+func (s *Sql) FindUserLocation(userId string) (l domain.LocationThai, err error) {
 	locStr, err := s.UserLastLocationAnswer(userId)
 	if err != nil {
 		return l, err
@@ -544,7 +544,7 @@ func (s *Sql) findUserLocation(userId string) (l domain.LocationThai, err error)
 }
 
 func (s *Sql) GetUserNearbyPrices(userId string) (lp []domain.LocationPrice, err error) {
-	loc, err := s.findUserLocation(userId)
+	loc, err := s.FindUserLocation(userId)
 	return s.getNearbyLocations(loc.Latitude, loc.Longitude, 99999999.0, 3)
 }
 
@@ -794,7 +794,7 @@ func (s *Sql) NormalisePrices(fromAnswerId int) (answerId int, err error) {
 			return answerId, errors.Wrap(err, "storage.NormalisePrices")
 		}
 
-		location, err := s.findUserLocation(userId)
+		location, err := s.FindUserLocation(userId)
 		if err != nil {
 			log.Errorf("Error finding location for userID %s: %s", userId, err)
 			continue

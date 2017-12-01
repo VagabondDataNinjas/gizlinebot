@@ -26,7 +26,7 @@ func (n *Normaliser) Start(errc chan error) {
 }
 
 func (n *Normaliser) normalisePrices(errc chan error) {
-	log.Info("Normalising prices")
+	// log.Info("Normalising prices")
 	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedPriceId()
 	if err != nil {
 		errc <- errors.Wrap(err, "Error getting last normalised price id")
@@ -42,7 +42,7 @@ func (n *Normaliser) normalisePrices(errc chan error) {
 }
 
 func (n *Normaliser) normaliseIslands(errc chan error) {
-	log.Info("Normalising Islands")
+	// log.Info("Normalising Islands")
 	lastNormalisedAnswerId, err := n.Storage.GetLastNormalisedIslandId()
 	if err != nil {
 		errc <- errors.Wrap(err, "Error getting last normalised island id")

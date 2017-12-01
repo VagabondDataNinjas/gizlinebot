@@ -118,6 +118,10 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 							break
 						}
 						if answered {
+							log.WithFields(log.Fields{
+								"UserId":     userId,
+								"QuestionId": customQuestionId,
+							}).Infof("User already answered this question")
 							// if user already answered question record in the answers table with "na" question id
 							if err = surv.RecordAnswerRaw(userId, "na", message.Text, "line"); err != nil {
 								log.Error(err)
@@ -139,6 +143,9 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 								break
 							}
 
+							log.WithFields(log.Fields{
+								"UserId": userId,
+							}).Infof("Sending custom question reply text")
 							if _, err = bot.PushMessage(userId, linebot.NewTextMessage(replyTextMsg)).Do(); err != nil {
 								log.Error(err)
 							}
@@ -186,12 +193,12 @@ func onUnfollow(userId string, s *storage.Sql) error {
 }
 
 func templateCustomQuestionReply(msgTpl, userId string, s *storage.Sql) (msg string, err error) {
-	loc, err := s.UserLastLocationAnswer(userId)
+	loc, err := s.FindUserLocation(userId)
 	if err != nil {
 		return "", err
 	}
-	if loc == "" {
-		return msgTpl, nil
+	if loc.NameThai == "" {
+		log.Warnf("could not find location for user id \"%s\"", userId)
 	}
 
 	priceList, err := userPriceList(userId, s)
@@ -210,7 +217,7 @@ func templateCustomQuestionReply(msgTpl, userId string, s *storage.Sql) (msg str
 	}
 	buf := new(bytes.Buffer)
 	tplVars := TplVars{
-		Location:  loc,
+		Location:  loc.NameThai,
 		PriceList: priceList,
 	}
 	err = tpl.Execute(buf, tplVars)
