@@ -112,7 +112,7 @@ func LineWebhookHandlerBuilder(surv *survey.Survey, s *storage.Sql, bot *linebot
 					// did this user get a custom question sent?
 					if customQuestionId != "" {
 						// have they answered this custom question already?
-						answered, err := s.UserAnsweredCustomQuestion(customQuestionId, qTs)
+						answered, err := s.UserAnsweredCustomQuestion(userId, customQuestionId, qTs)
 						if err != nil {
 							log.Error(err)
 							break

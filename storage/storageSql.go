@@ -671,12 +671,12 @@ func (s *Sql) deleteFromTableUserId(table string, userId string) error {
 	return nil
 }
 
-func (s *Sql) UserAnsweredCustomQuestion(questionId string, qTs int) (bool, error) {
+func (s *Sql) UserAnsweredCustomQuestion(userId, questionId string, qTs int) (bool, error) {
 	// check whether the user alreay answered this question
 	var aId int
 	err := s.Db.QueryRow(`SELECT id FROM answers
-		WHERE questionId = ? AND timestamp > ? LIMIT 0, 1
-		`, questionId, qTs).Scan(&aId)
+		WHERE userId = ? AND questionId = ? AND timestamp > ? LIMIT 0, 1
+		`, userId, questionId, qTs).Scan(&aId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil
