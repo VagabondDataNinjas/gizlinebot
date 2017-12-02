@@ -89,7 +89,10 @@ func (a *Api) Serve() error {
 	if err != nil {
 		return err
 	}
-	r.Use(middleware.JWT([]byte(jwtSecret)))
+	jwtConfigCookieAuth := middleware.DefaultJWTConfig
+	jwtConfigCookieAuth.TokenLookup = "cookie:token"
+	jwtConfigCookieAuth.SigningKey = []byte(jwtSecret)
+	r.Use(middleware.JWTWithConfig(jwtConfigCookieAuth))
 
 	r.POST("/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
 	r.POST("/send/custom/question", SendLineCustomQuestionHandlerBuilder(a.Storage, a.LineBot))
