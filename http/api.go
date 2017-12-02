@@ -73,10 +73,6 @@ func (a *Api) Serve() error {
 	e.Group("/static", NoCacheMW).Static("", "../gizsurvey/build/static")
 	e.Group("/media", NoCacheMW).Static("", "../media")
 
-	e.GET("/api/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
-
-	e.GET("/api/user/prices/:userid", PriceHandler(a.Storage), NoCacheMW) // @TODO remove
-
 	// lineimgs/groots.png/700
 	e.GET("/lineimgs/:filename", LineImgHandler(), NoCacheMW)
 	e.GET("/lineimgs/:filename/:size", LineImgHandler(), NoCacheMW)
@@ -86,14 +82,24 @@ func (a *Api) Serve() error {
 	e.POST("/api/webform/answer", AnswerHandlerBuilder(a.Storage, a.LineBot))
 	e.POST("/api/webform/answer-gps", AnswerGpsHandlerBuilder(a.Storage))
 
-	// @TODO add authentication
-	e.POST("/api/admin/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
-	e.POST("/api/admin/send/custom/question", SendLineCustomQuestionHandlerBuilder(a.Storage, a.LineBot))
+	e.POST("/api/login", loginHandler(a.Storage), NoCacheMW)
 
-	e.GET("/api/admin/location-prices", LocationPricesHandlerBuilder(a.Storage))
+	r := e.Group("/api/admin")
+	jwtSecret, err := a.Storage.GetConfigVal("jwtSecret")
+	if err != nil {
+		return err
+	}
+	r.Use(middleware.JWT([]byte(jwtSecret)))
 
-	e.GET("/api/admin/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
-	e.GET("/api/admin/download/lineevents.csv", LineEventsDownloadHandlerBuilder(a.Storage), NoCacheMW)
+	r.POST("/send-msg", SendLineMsgHandlerBuilder(a.Storage, a.LineBot))
+	r.POST("/send/custom/question", SendLineCustomQuestionHandlerBuilder(a.Storage, a.LineBot))
+
+	r.GET("/location-prices", LocationPricesHandlerBuilder(a.Storage))
+
+	r.GET("/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
+	r.GET("/download/lineevents.csv", LineEventsDownloadHandlerBuilder(a.Storage), NoCacheMW)
+	r.GET("/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
+	r.GET("/user/prices/:userid", PriceHandler(a.Storage), NoCacheMW)
 
 	log.Fatal(e.Start(fmt.Sprintf(":%d", a.Conf.Port)))
 	return nil
