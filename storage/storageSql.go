@@ -445,6 +445,36 @@ func (s *Sql) GetLocations() (locs []domain.LocationThai, err error) {
 	return locs, nil
 }
 
+func (s *Sql) GetLocationPrices() (locs []domain.LocationPrice, err error) {
+	rows, err := s.Db.Query(`SELECT l.id, l.name, IFNULL(l.latitude, 0), IFNULL(l.longitude, 0), AVG(np.price)
+	FROM normalised_prices np
+	INNER JOIN locations l
+		ON l.id = np.locationId
+	GROUP BY l.id`)
+	if err != nil {
+		return locs, err
+	}
+	defer rows.Close()
+
+	locs = make([]domain.LocationPrice, 0)
+	for rows.Next() {
+		loc := domain.LocationPrice{}
+		err := rows.Scan(&loc.Id, &loc.Name, &loc.Latitude, &loc.Longitude, &loc.Price)
+		if err != nil {
+			return locs, err
+		}
+		loc.Price = round(loc.Price)
+		locs = append(locs, loc)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return locs, err
+	}
+
+	return locs, nil
+}
+
 func (s *Sql) applyWelcomeTpl(msg string, tplVars *WelcomeMsgTplVars) (string, error) {
 	tmpl, err := template.New("welcomeMsg").Parse(msg)
 	if err != nil {
