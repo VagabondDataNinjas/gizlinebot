@@ -9,7 +9,6 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	log "github.com/sirupsen/logrus"
 )
 
 func loginHandler(s *storage.Sql) func(c echo.Context) error {
@@ -29,9 +28,6 @@ func loginHandler(s *storage.Sql) func(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-
-		log.Infof("User: %s; Pass: %s", user, pass)
-		log.Infof("Iuser: %s; iPass: %s", user, pass)
 
 		if user == "" || pass == "" || secret == "" {
 			return errors.New("Setup error: missing adminUser, adminUser, or jwtSecret from DB setup")
