@@ -675,7 +675,7 @@ func round(x float64) float64 {
 }
 
 func (s *Sql) WipeUser(userId string) error {
-	for _, table := range []string{"user_profiles", "answers", "answers_gps"} {
+	for _, table := range []string{"user_profiles", "answers", "answers_gps", "normalised_prices", "normalised_islands"} {
 		err := s.deleteFromTableUserId(table, userId)
 		if err != nil {
 			return err
