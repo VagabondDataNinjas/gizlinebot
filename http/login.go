@@ -45,13 +45,20 @@ func loginHandler(s *storage.Sql) func(c echo.Context) error {
 			claims := token.Claims.(jwt.MapClaims)
 			claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-			// Generate encoded token and send it as response.
+			// Generate encoded token
 			t, err := token.SignedString([]byte(secret))
 			if err != nil {
 				return err
 			}
+
+			cookie := new(http.Cookie)
+			cookie.Name = "token"
+			cookie.Value = t
+			cookie.Expires = time.Now().Add(87600 * time.Hour)
+			c.SetCookie(cookie)
+
 			return c.JSON(http.StatusOK, map[string]string{
-				"token": t,
+				"status": "success",
 			})
 		}
 
