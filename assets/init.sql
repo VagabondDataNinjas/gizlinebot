@@ -131,6 +131,7 @@ CREATE TABLE `normalised_prices` (
   `price` float NOT NULL,
   `channel` varchar(10) NOT NULL DEFAULT '',
   `timestamp` int(11) NOT NULL,
+  `locationId` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
