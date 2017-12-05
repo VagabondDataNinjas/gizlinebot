@@ -70,6 +70,7 @@ func (a *Api) Serve() error {
 	})
 
 	e.Group("/", NoCacheMW).Static("", "../gizsurvey/build")
+	e.Group("/admin", NoCacheMW).Static("", "../gizsurvey/build")
 	e.Group("/static", NoCacheMW).Static("", "../gizsurvey/build/static")
 	e.Group("/media", NoCacheMW).Static("", "../media")
 
