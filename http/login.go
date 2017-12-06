@@ -9,12 +9,22 @@ import (
 	"github.com/VagabondDataNinjas/gizlinebot/storage"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	log "github.com/sirupsen/logrus"
 )
+
+type LoginPayload struct {
+	User string `json:"user"`
+	Pass string `json:"pass"`
+}
 
 func loginHandler(s *storage.Sql) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		inputUser := c.FormValue("user")
-		inputPass := c.FormValue("pass")
+		payload := new(LoginPayload)
+
+		if err := c.Bind(payload); err != nil {
+			log.Errorf("[loginHandler] Bind error: %s", err)
+			return err
+		}
 
 		user, err := s.GetConfigVal("adminUser")
 		if err != nil {
@@ -33,7 +43,7 @@ func loginHandler(s *storage.Sql) func(c echo.Context) error {
 			return errors.New("Setup error: missing adminUser, adminUser, or jwtSecret from DB setup")
 		}
 
-		if inputUser == user && inputPass == pass {
+		if payload.User == user && payload.Pass == pass {
 			// Create token
 			token := jwt.New(jwt.SigningMethodHS256)
 
