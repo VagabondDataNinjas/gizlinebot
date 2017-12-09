@@ -100,7 +100,6 @@ func (a *Api) Serve() error {
 
 	r.GET("/location-prices", LocationPricesHandlerBuilder(a.Storage))
 
-	r.GET("/download/data.csv", DownloadHandlerBuilder(a.Storage), NoCacheMW)
 	r.GET("/download/lineevents.csv", LineEventsDownloadHandlerBuilder(a.Storage), NoCacheMW)
 	r.GET("/user/wipe/:userid", WipeUserHandlerBuilder(a.Storage, a.LineBot), NoCacheMW)
 
