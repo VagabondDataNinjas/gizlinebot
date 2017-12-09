@@ -6,6 +6,17 @@ builds:
       - linux
     goarch:
       - amd64
+
+    # Custom ldflags template.
+    # This is parsed with the Go template engine and the following variables
+    # are available:
+    # - Date
+    # - Commit
+    # - Tag
+    # - Version (Git tag without `v` prefix)
+    # Date format is `2006-01-02_15:04:05`.
+    # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}`.
+    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
 # Archive customization
 archive:
   format: tar.gz
